@@ -128,7 +128,7 @@ const form = ref({
 
 // 중복 체크 상태
 const availability = ref({
-  phone: null,    // true/false/null
+  phone: null, 
   email: null,
   nickname: null,
 });
@@ -166,22 +166,15 @@ const loading = ref({
   signup: false,
 });
 
-// --------------------------
-// helpers
-// --------------------------
 const getAvailable = (res) => {
   return res?.data?.available;
 };
 
-// --------------------------
-// blur handlers: duplicate checks
-// --------------------------
 const onBlurPhone = async () => {
   const phone = (form.value.phoneNumber || '').trim();
   verifyOk.value = false;
   verifyMsg.value = '';
 
-  // 입력이 비었으면 초기화
   if (!phone) {
     availability.value.phone = null;
     phoneMsg.value = '';
@@ -257,9 +250,6 @@ const onBlurNickname = async () => {
   }
 };
 
-// --------------------------
-// phone verification flow
-// --------------------------
 const canRequestCode = computed(() => {
   const phone = (form.value.phoneNumber || '').trim();
   return !!phone && availability.value.phone === true && !loading.value.requestCode && !loading.value.phoneCheck;
@@ -318,16 +308,12 @@ const onClickVerifyCode = async () => {
   }
 };
 
-// --------------------------
-// signup
-// --------------------------
 const canSignup = computed(() => {
   const phone = (form.value.phoneNumber || '').trim();
   const email = (form.value.email || '').trim();
   const nickname = (form.value.nickname || '').trim();
   const password = (form.value.password || '').trim();
 
-  // 휴대폰/이메일/닉네임 중복 체크가 모두 true + 휴대폰 인증 완료
   return (
     !!phone &&
     !!email &&
@@ -356,7 +342,6 @@ const onClickSignup = async () => {
 
     signupOk.value = true;
     signupMsg.value = '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.';
-    // 간단 딜레이 없이 즉시 이동
     router.push('/user');
   } catch (e) {
     console.log(e);

@@ -6,20 +6,32 @@ import mypageRoutes from './mypage';
 import promptRoutes from './prompt';
 import userRoutes from './user';
 
-
+import { useUserStore } from "@/stores/user";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes : [
-        {
-            path: '/',
-            redirect: '/user' // 루트 경로를 /login으로 리다이렉트  => 추후에 로그인 코튼 확인해서 로그인 안되있으면 이동으로 수정해야함
-        },
-        ...homeRoutes,
-        ...myRoutes,
-        ...mypageRoutes,
-        ...promptRoutes,
-        ...userRoutes,
-    ]   
-})
+    routes: [
+    {
+        path: '/',
+        redirect: '/user'
+    },
+    ...homeRoutes,
+    ...myRoutes,
+    ...mypageRoutes,
+    ...promptRoutes,
+    ...userRoutes,
+    ]
+});
+
+router.beforeEach((to, from, next) => {
+    const userStore = useUserStore();
+    userStore.load();
+
+    if (to.path === '/user' && userStore.isLogin) {
+        return next({ name: 'home' }); 
+    }
+
+    return next();
+});
+
 export default router;

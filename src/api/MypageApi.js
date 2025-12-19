@@ -8,14 +8,14 @@ const headers = {
 
 export default {
     async getMyInfo() {
-       // const response = await refreshToken.checkToken();
+        const response = await refreshToken.checkToken();
         const { data } = await api.get(`${BASE_URL}/users/me`);
         return data;
     },
 
     async changePW(currentPassword, newPassword) {
         const payload = { currentPassword, newPassword };
-       // const response = await refreshToken.checkToken();
+        const response = await refreshToken.checkToken();
         const { data } = await api.patch(`${BASE_URL}/users/me/password`,
             payload
         );
@@ -24,7 +24,7 @@ export default {
 
     async changeNickName(newNickname) {
         const payload = { newNickname };
-       // const response = await refreshToken.checkToken();
+        const response = await refreshToken.checkToken();
         const { data } = await api.patch(`${BASE_URL}/users/me/nickname`,
             payload
         );

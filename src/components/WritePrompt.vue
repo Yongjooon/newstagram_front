@@ -1,6 +1,5 @@
 <template>
   <section>
-    <h2>프롬프트 작성</h2>
 
     <div>
       <textarea

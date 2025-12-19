@@ -8,7 +8,7 @@ const headers = {
 
 export default {
     async getArticles(periodType, cursor) {
-       // const response = await refreshToken.checkToken();
+        const response = await refreshToken.checkToken();
         const { data } = await api.get(`${BASE_URL}/article/hot-issues/${periodType}/${cursor}`);
         return data;
     },

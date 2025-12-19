@@ -158,20 +158,36 @@ async nicknameDuplicateCheck(nickname) {
   return data;
 },
 
-  
+//비밀번호 변경 인증 코드 요청
+  async sendPasswordResetRequest(email) {
+    const payload = { email: String(email || '').trim() };
 
-  // 비밀번호 찾기
-  async findUserPwd(user) {
     const { data } = await api.post(
-      '/user/find-pwd',
-      user,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      `${BASE_URL}/auth/password/reset-request`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
     );
     return data;
+  },
+
+  //비밀번호 재설정
+  async resetPassword(token, newPassword) {
+    const payload = {
+      token: String(token || '').trim(),
+      newPassword: String(newPassword || ''),
+    };
+
+    const { data } = await api.post(
+      `${BASE_URL}/auth/password/reset`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return data;
+  },
+
+//소셜로그인
+  getGoogleOAuthStartUrl() {
+    return `${BASE_URL}/oauth2/authorization/google`;
   },
 
 };

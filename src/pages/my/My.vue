@@ -192,4 +192,92 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+  main {
+  padding: 16px;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* 상단 컨트롤 */
+section[style*="display:flex"][style*="margin-bottom:12px"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  box-shadow: var(--shadow);
+}
+
+/* 에러 색 */
+div[style*="color:#c00"] {
+  color: #b91c1c !important;
+}
+
+/* 리스트 카드 */
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"] {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  background: var(--panel) !important;
+  box-shadow: var(--shadow) !important;
+  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:hover {
+  background: #fafafa !important;
+  border-color: #d1d5db !important;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:active {
+  transform: translateY(1px);
+}
+
+/* 썸네일 */
+img[alt="thumbnail"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+}
+
+div[style*="No Image"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background: #fafafa !important;
+}
+
+/* 제목 */
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* 본문 */
+p {
+  color: #374151 !important;
+}
+
+/* 버튼 공통 */
+button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+</style>

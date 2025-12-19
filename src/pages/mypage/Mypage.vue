@@ -54,9 +54,6 @@
         {{ nicknameCheckMsg }}
       </div>
 
-      <div v-if="nicknameMsg" style="margin-top:8px; font-size:12px;" :style="{ color: nicknameMsgColor }">
-        {{ nicknameMsg }}
-      </div>
     </section>
 
     <!-- 비밀번호 변경 -->
@@ -120,7 +117,7 @@ const loadingNickname = ref(false);
 const nicknameOk = ref(false);
 const nicknameMsg = ref('');
 
-const nicknameAvailable = ref(null); // true/false/null
+const nicknameAvailable = ref(null); 
 const loadingNicknameCheck = ref(false);
 const nicknameCheckMsg = ref('');
 const nicknameCheckMsgColor = computed(() => {
@@ -138,18 +135,14 @@ const pwOk = ref(false);
 const pwMsg = ref('');
 const pwMsgColor = computed(() => (pwOk.value ? '#333' : '#c00'));
 
-// --------------------------
-// 공통: 서버 응답 파싱
-// --------------------------
+
 const getAvailable = (res) => {
   // res = { success, code, message, data: { available }, error }
   if (res?.success !== true) return undefined;
   return res?.data?.available;
 };
 
-// --------------------------
-// helpers
-// --------------------------
+
 const renderRole = (role) => {
   if (!role) return '-';
   return String(role);
@@ -163,7 +156,7 @@ const reloadInfo = async () => {
     const data = await MypageApi.getMyInfo();
     myInfo.value = data?.data ? data.data : data;
 
-    // 기본값 세팅
+    
     if (myInfo.value?.nickname) {
       newNickname.value = myInfo.value.nickname;
       nicknameAvailable.value = null;
@@ -178,20 +171,16 @@ const reloadInfo = async () => {
   }
 };
 
-// --------------------------
-// 닉네임 즉시 중복 체크 (blur)
-// --------------------------
+
 const onBlurNickname = async () => {
   const nn = (newNickname.value || '').trim();
 
-  // 비어있으면 초기화
   if (!nn) {
     nicknameAvailable.value = null;
     nicknameCheckMsg.value = '';
     return;
   }
 
-  // 현재 닉네임과 동일하면(변경 없음) 체크 의미 없음
   if (myInfo.value?.nickname && nn === myInfo.value.nickname) {
     nicknameAvailable.value = true;
     nicknameCheckMsg.value = '현재 사용 중인 닉네임입니다.';
@@ -229,7 +218,7 @@ const canChangeNickname = computed(() => {
   const nn = (newNickname.value || '').trim();
   if (!nn) return false;
   if (loadingNickname.value || loadingNicknameCheck.value) return false;
-  // 중복체크 결과가 true일 때만 변경 가능
+
   return nicknameAvailable.value === true;
 });
 
@@ -255,16 +244,14 @@ const onChangeNickname = async () => {
   }
 };
 
-// --------------------------
-// 비밀번호 규칙: 8자 + 영문 + 숫자 + 특수문자
-// --------------------------
+
 const passwordValid = computed(() => {
   const pw = (newPassword.value || '').trim();
   if (pw.length < 8) return false;
 
   const hasLetter = /[A-Za-z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
-  const hasSpecial = /[^A-Za-z0-9]/.test(pw); // 특수문자
+  const hasSpecial = /[^A-Za-z0-9]/.test(pw); 
 
   return hasLetter && hasNumber && hasSpecial;
 });
@@ -325,4 +312,71 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+  main {
+  padding: 16px;
+  max-width: 720px;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* 공통 섹션 카드(회원정보/닉네임/비번) */
+section[style*="border:1px solid #ddd"][style*="border-radius:10px"][style*="padding:12px"] {
+  background: var(--panel);
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow);
+}
+
+/* 제목 */
+h2 {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* input 개선 */
+input {
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  outline: none;
+}
+
+input:focus {
+  box-shadow: var(--focus);
+  border-color: rgba(59, 130, 246, 0.7) !important;
+}
+
+/* 버튼 */
+button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 에러 메세지 */
+div[style*="color:#c00"] {
+  color: #b91c1c !important;
+}
+
+</style>

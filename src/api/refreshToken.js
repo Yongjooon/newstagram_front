@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user';
 import router from '@/router';
 
 
-const BASE_URL = '/token';
+const BASE_URL = '/api';
 
 export default {
   // token 유효성 검사
@@ -13,13 +13,14 @@ export default {
         const refreshToken = getRefreshToken();
 
         try {
-            const response = await api.get(BASE_URL, {
+            const response = await api.post(`${BASE_URL}/auth/token`, {
                 headers: {
                 'Authorization': token, // Access Token
                 'refreshToken': refreshToken,       // Refresh Token
                 'Content-Type': 'application/json'  // JSON 요청
                 }
             });
+            // console.log(response);
             if(response.data.accessTokenOK){
                 return response;
             }

@@ -1,37 +1,38 @@
 <template>
-  <main>
-    <h1>Login</h1>
-
-    <section>
-      <div>
-        <label>
-          이메일
-          <input v-model="loginUser.email" type="email" placeholder="email@example.com" />
-        </label>
+  <div class="page">
+    <div class="card card--padded">
+      <div class="page-head">
+        <h1 class="page-title">로그인</h1>
+        <span class="badge">Newstagram</span>
       </div>
 
-      <div>
-        <label>
-          비밀번호
-          <input v-model="loginUser.password" type="password" placeholder="password" />
-        </label>
-      </div>
+      <form class="form" @submit.prevent="login">
+        <div class="field">
+          <label>이메일</label>
+          <input v-model="loginUser.email" type="email" placeholder="email@example.com" autocomplete="email" />
+        </div>
 
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button type="button" @click="login" >로그인</button>
-        <button type="button" @click="goSignup">회원가입</button>
-      </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input v-model="loginUser.password" type="password" placeholder="password" autocomplete="current-password" />
+        </div>
 
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button type="button" @click="goFindId">아이디 찾기</button>
-        <button type="button" @click="goFindPwd">비밀번호 찾기</button>
-      </div>
+        <div class="actions">
+          <button class="btn-primary" type="submit">로그인</button>
+          <button type="button" @click="goSignup">회원가입</button>
+        </div>
 
-      <div style="margin-top:16px;">
-        <button type="button" @click="goSocialSignup">소셜 회원가입</button>
-      </div>
-    </section>
-  </main>
+        <div class="actions">
+          <button type="button" @click="goFindId">아이디 찾기</button>
+          <button type="button" @click="goFindPwd">비밀번호 찾기</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn-ghost" type="button" @click="goSocialSignup">소셜 로그인</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -42,27 +43,19 @@ import { useUserStore } from '../../stores/user';
 const router = useRouter();
 const userStore = useUserStore();
 
-
 const loginUser = reactive({
   email: '',
   password: '',
-});
-
-
+})
 
 const login = async () => {
   try {
     await userStore.login(loginUser);
     router.push({ name: "home" });
   } catch (error) {
-    console.error("login failed:", error);
-  console.error("status:", error?.response?.status);
-  console.error("data:", error?.response?.data);
-    if (error.response?.status === 401) {
-      alert('올바른 아이디, 비밀번호를 입력해주세요.'); // 경고창으로 에러 메시지 표시
-    }
+    alert(error?.message || "로그인에 실패했습니다.");
   }
-};
+}
 
 function goSignup() {
   router.push({ name: "Signup" });
@@ -78,5 +71,5 @@ function goSocialSignup() {
 }
 </script>
 
-
-<style scoped></style>
+<style scoped>
+</style>

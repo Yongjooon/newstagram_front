@@ -1,74 +1,125 @@
-import {ref, computed} from 'vue';
-import {defineStore} from 'pinia';
+// src/stores/user.js
+import { ref, computed } from 'vue';
+import { defineStore } from 'pinia';
 import UserApi from "../api/UserApi";
 
-const initState={
-    token:'',
-    refreshToken:'',
-    user:{
-        userId:''
-    }
+const initState = {
+  token: '',
+  refreshToken: '',
+  user: {
+    userId: ''
+  }
 };
 
-export const useUserStore=defineStore('user', () => {
-    const state=ref({...initState});
+export const useUserStore = defineStore('user', () => {
+  const state = ref({ ...initState });
 
-    const isLogin=computed(()=>state.value.user.userId);
+  const isLogin = computed(() => {
+    return !!(state.value.token && state.value.user.userId);
+  });
 
-    const id=computed(()=>state.value.user.userId);
+  const id = computed(() => state.value.user.userId);
 
+  const login = async (loginUser) => {
+    try {
+      const res = await UserApi.login(loginUser);
 
-    const login=async(loginUser)=>{
-        try{
-            const res=await UserApi.login(loginUser);
-            // 토큰이 없거나 에러 메시지인 경우 에러 처리
-            if (typeof res.data.accessToken !== 'string' || !res.data.accessToken.startsWith('Bearer')) {
-                throw new Error('올바른 아이디 또는 비밀번호를 입력하세요.'); // 에러 메시지 던지기
-            }
-            state.value.token = res.data.accessToken;
-            state.value.refreshToken = res.data.refreshToken;
-            state.value.user.userId = loginUser.email;
+      // 토큰이 없거나 형식이 이상하면 실패로 처리
+      if (
+        typeof res?.data?.accessToken !== 'string' ||
+        !res.data.accessToken.startsWith('Bearer')
+      ) {
+        throw new Error('아이디 혹은 비밀번호가 다릅니다.');
+      }
 
-            localStorage.setItem('user', JSON.stringify(state.value));
-        }catch(error){
-            throw error;  // 에러를 호출한 쪽으로 다시 던지기
-        }
-        
-    };
+      state.value.token = res.data.accessToken;
+      state.value.refreshToken = res.data.refreshToken;
+      state.value.user.userId = loginUser.email;
 
-    const socialLigin=async(data)=>{
-        try{
-            state.value.token = data.token;
-            state.value.user.userId = data.uerId;
-            localStorage.setItem('user', JSON.stringify(state.value));
-        }catch(error){
-            throw error;  // 에러를 호출한 쪽으로 다시 던지기
-        }
-    };
+      localStorage.setItem('user', JSON.stringify(state.value));
+      return res;
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        error?.error ||
+        "";
 
-    const logout=()=>{
-        localStorage.clear();
-        state.value={...initState};
-        console.log(state)
-    };
+      const status = error?.response?.status;
 
-    const getToken=()=>state.value.token;
-    const getRefreshToken = ()=> state.value.refreshToken;
+      // 401 또는 유사 메시지면 로그인 실패 문구로 통일
+      if (
+        status === 401 ||
+        msg.includes("로그인이 필요한") ||
+        msg.includes("Unauthorized")
+      ) {
+        throw new Error("아이디 혹은 비밀번호가 다릅니다.");
+      }
 
-    const setToken = (token)=>{
-        state.value.token = token;
-        localStorage.setItem('user', JSON.stringify(state.value));
+      throw error;
     }
+  };
 
-    const load=()=>{
-        const user=localStorage.getItem('user');
-        if(user != null){
-            state.value=JSON.parse(user);
-            //console.log(state.value);
+  // 소셜 로그인(토큰/아이디 저장)
+  const socialLigin = async (data) => {
+    try {
+      state.value.token = data?.token || '';
+      state.value.refreshToken = data?.refreshToken || '';
+      state.value.user.userId = data?.userId || data?.uerId || ''; 
+      localStorage.setItem('user', JSON.stringify(state.value));
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  //로그아웃: user 키만 제거 (localStorage.clear()는 다른 값까지 지움)
+  const logout = () => {
+    localStorage.removeItem('user');
+    state.value = { ...initState };
+  };
+
+  const getToken = () => state.value.token;
+  const getRefreshToken = () => state.value.refreshToken;
+
+  const setToken = (token) => {
+    state.value.token = token;
+    localStorage.setItem('user', JSON.stringify(state.value));
+  };
+
+  // 로컬스토리지에서 상태 복구
+  const load = () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (user != null) {
+        const parsed = JSON.parse(user);
+
+        // 토큰이 있으면 복구, 없으면 초기화
+        if (parsed?.token) {
+          state.value = parsed;
+        } else {
+          state.value = { ...initState };
         }
-    };
+      }
+    } catch (e) {
+      state.value = { ...initState };
+    }
+  };
 
-    load();
+  // 앱 시작 시 1회 복구
+  load();
 
-    return{state, id, isLogin, login, socialLigin, logout, getToken, setToken, getRefreshToken, load};
+  return {
+    state,
+    id,
+    isLogin,
+    login,
+    socialLigin,
+    logout,
+    getToken,
+    setToken,
+    getRefreshToken,
+    load
+  };
 });

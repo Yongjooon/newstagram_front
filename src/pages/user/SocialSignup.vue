@@ -1,50 +1,50 @@
 <template>
-  <main>
-    <h1>Social Signup</h1>
-
-    <section>
-      <p>소셜 로그인 후 최초 가입 시 추가 정보 입력(임시)</p>
-
-      <div>
-        <label>
-          소셜 제공자
-          <select v-model="provider">
-            <option value="google">Google</option>
-            <option value="kakao">Kakao</option>
-            <option value="naver">Naver</option>
-          </select>
-        </label>
+  <div class="page">
+    <div class="card card--padded">
+      <div class="page-head">
+        <h1 class="page-title">소셜 로그인</h1>
+        <button class="btn-ghost" type="button" @click="goLogin">로그인으로</button>
       </div>
 
-      <div>
-        <label>
-          닉네임
-          <input v-model="nickname" type="text" placeholder="nickname" />
-        </label>
+      <p class="muted" style="margin: 0 0 14px; font-size: 13px; line-height: 1.6;">
+        Google 계정으로 로그인합니다. 최초 로그인인 경우 임시 계정이 생성될 수 있으며,
+        이후 휴대폰 인증이 필요할 수 있습니다.
+      </p>
+
+      <div class="actions">
+        <button class="btn-primary" type="button" @click="startGoogleOAuth">
+          Google로 계속하기
+        </button>
+        <button type="button" @click="goLogin">취소</button>
       </div>
 
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button type="button" @click="complete" :disabled="!nickname.trim()">가입 완료</button>
-        <button type="button" @click="goLogin">로그인으로</button>
-      </div>
-    </section>
-  </main>
+      <p v-if="message" class="muted" :style="{ color: ok ? '#059669' : '#ef4444', marginTop: '10px' }">
+        {{ message }}
+      </p>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import UserApi from "../../api/UserApi";
 
 const router = useRouter();
 
-const provider = ref("google");
-const nickname = ref("");
+const ok = ref(false);
+const message = ref("");
 
-function complete() {
-  // TODO: 소셜 가입 완료 API
-  console.log("social signup:", { provider: provider.value, nickname: nickname.value });
-  alert("소셜 가입 완료(임시) → Home 이동");
-  router.push({ name: "Home" });
+function startGoogleOAuth() {
+  message.value = "";
+  ok.value = false;
+
+  const url = UserApi.getGoogleOAuthStartUrl();
+
+  window.open(url, "_blank", "noopener,noreferrer");
+
+  ok.value = true;
+  message.value = "새 탭에서 Google 로그인 화면이 열립니다. 로그인을 완료해 주세요.";
 }
 
 function goLogin() {
@@ -52,5 +52,5 @@ function goLogin() {
 }
 </script>
 
-
-<style scoped></style>
+<style scoped>
+</style>

@@ -21,18 +21,6 @@
       </button>
     </section>
 
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
-      <div>
-        <div style="font-size:14px; color:#666;">현재 타입</div>
-        <div style="font-size:16px; font-weight:600;">{{ periodType }}</div>
-      </div>
-
-      <div>
-        <div style="font-size:14px; color:#666;">현재 cursor</div>
-        <div style="font-size:16px; font-weight:600;">{{ cursor }}</div>
-      </div>
-    </div>
-
     <div v-if="loading" style="padding:12px 0;">불러오는 중...</div>
     <div v-else-if="errorMsg" style="padding:12px 0; color:#c00;">{{ errorMsg }}</div>
 
@@ -236,4 +224,116 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+  /* 페이지 베이스 */
+main {
+  padding: 16px;
+}
+
+/* 상단 타이틀 */
+h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* 상단 컨트롤 바(버튼 줄) */
+section[style*="display:flex"][style*="margin-bottom:12px"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  box-shadow: var(--shadow);
+}
+
+/* 상태 박스(현재 타입/cursor) */
+div[style*="justify-content:space-between"][style*="margin-bottom:12px"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* 로딩/에러 텍스트 */
+div[style*="불러오는 중"] {
+  color: var(--muted);
+}
+div[style*="color:#c00"] {
+  color: #b91c1c !important;
+}
+
+/* 이슈 리스트 컨테이너 */
+div[style*="flex-direction:column"][style*="gap:12px"] {
+  margin-top: 8px;
+}
+
+/* 카드 버튼(이슈 아이템) */
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"] {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  background: var(--panel) !important;
+  box-shadow: var(--shadow) !important;
+  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:hover {
+  background: #fafafa !important;
+  border-color: #d1d5db !important;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:active {
+  transform: translateY(1px);
+}
+
+/* 썸네일 영역 */
+img[alt="thumbnail"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+}
+
+div[style*="No Image"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background: #fafafa !important;
+}
+
+/* 제목 */
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* 본문 */
+p {
+  color: #374151 !important;
+}
+
+/* 하단 더 불러오기 영역 */
+div[style*="justify-content:center"][style*="gap:8px"] {
+  margin-top: 14px !important;
+}
+
+/* 버튼 공통(이 파일 안에서) */
+button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+</style>

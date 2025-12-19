@@ -9,9 +9,6 @@
         <button type="button" @click="reloadHistory" :disabled="loadingHistory">
           새로고침
         </button>
-        <button type="button" @click="clearSelected" :disabled="loadingSearch || loadingMore">
-          선택 해제
-        </button>
       </div>
 
       <div style="max-height:520px; overflow:auto; border-top:1px solid #eee; padding-top:8px;">
@@ -272,7 +269,7 @@ const formatDate = (iso) => {
 };
 
 const openArticle = async (a) => {
-  // 1) 클릭 로그 전송 (실패해도 기사 오픈은 진행)
+
   try {
     if (a?.id !== undefined && a?.id !== null) {
       await LogApi.addLog(a.id);
@@ -281,7 +278,6 @@ const openArticle = async (a) => {
     console.log(e);
   }
 
-  // 2) 기사 오픈
   if (!a?.url) return;
   window.open(a.url, '_blank', 'noopener,noreferrer');
 };
@@ -304,4 +300,133 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+  main {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* 좌측 aside / 우측 section을 카드 스타일로 */
+aside[style*="width:280px"][style*="border:1px solid #ddd"] {
+  background: var(--panel);
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow);
+}
+
+section[style*="flex:1"][style*="border:1px solid #ddd"] {
+  background: var(--panel);
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow);
+}
+
+/* 제목 */
+h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* history 스크롤 영역 */
+div[style*="max-height:520px"][style*="overflow:auto"] {
+  border-top: 1px solid var(--line) !important;
+}
+
+/* history 버튼(선택/hover 개선) */
+button[title*="해당 검색어"] {
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.04s ease;
+}
+
+button[title*="해당 검색어"]:hover {
+  background: #fafafa !important;
+  border-color: #d1d5db !important;
+}
+
+button[title*="해당 검색어"]:active {
+  transform: translateY(1px);
+}
+
+/* 기사 카드 버튼 */
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"] {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  background: var(--panel) !important;
+  box-shadow: var(--shadow) !important;
+  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:hover {
+  background: #fafafa !important;
+  border-color: #d1d5db !important;
+}
+
+button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:active {
+  transform: translateY(1px);
+}
+
+/* 썸네일 */
+img[alt="thumbnail"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+}
+
+div[style*="No Image"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background: #fafafa !important;
+}
+
+/* 본문 */
+p {
+  color: #374151 !important;
+}
+
+/* 공통 버튼 */
+button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 에러 */
+div[style*="color:#c00"] {
+  color: #b91c1c !important;
+}
+
+/* 반응형: 모바일에서 좌/우 1열 */
+@media (max-width: 900px) {
+  main {
+    flex-direction: column;
+  }
+
+  aside[style*="width:280px"] {
+    width: 100% !important;
+  }
+}
+
+</style>

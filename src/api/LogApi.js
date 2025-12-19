@@ -8,7 +8,7 @@ const headers = {
 
 export default {
     async addLog(articleId) {
-       // const response = await refreshToken.checkToken();
+        const response = await refreshToken.checkToken();
         if (articleId === undefined || articleId === null) {
             throw new Error('articleId is required');
         }
