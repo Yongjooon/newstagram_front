@@ -50,8 +50,12 @@ const loginUser = reactive({
 
 const login = async () => {
   try {
-    await userStore.login(loginUser);
-    router.push({ name: "home" });
+    const res = await userStore.login(loginUser);
+    if (res.data.initialized === false) {
+      router.push({ path: "/survey" });
+    } else {
+      router.push({ name: "home" });
+    }
   } catch (error) {
     alert(error?.message || "로그인에 실패했습니다.");
   }

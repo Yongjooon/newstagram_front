@@ -6,6 +6,7 @@ import UserApi from "../api/UserApi";
 const initState = {
   token: '',
   refreshToken: '',
+  initialized: null,
   user: {
     userId: ''
   }
@@ -34,6 +35,7 @@ export const useUserStore = defineStore('user', () => {
 
       state.value.token = res.data.accessToken;
       state.value.refreshToken = res.data.refreshToken;
+      state.value.initialized = res.data.initialized;
       state.value.user.userId = loginUser.email;
 
       localStorage.setItem('user', JSON.stringify(state.value));
@@ -66,6 +68,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       state.value.token = data?.token || '';
       state.value.refreshToken = data?.refreshToken || '';
+      state.value.initialized = data?.initialized;
       state.value.user.userId = data?.userId || data?.uerId || ''; 
       localStorage.setItem('user', JSON.stringify(state.value));
       return true;
