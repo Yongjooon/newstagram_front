@@ -20,30 +20,39 @@
           placeholder="01012345678"
           @blur="onBlurPhone"
           class="custom-input flex-grow"
+          :disabled="verifyOk"
         />
         <button
           type="button"
           class="btn-outline"
           @click="onClickRequestCode"
-          :disabled="!canRequestCode"
+          :disabled="!canRequestCode || verifyOk"
         >
-          인증번호 받기
+        {{ verifyOk ? '인증완료' : '인증번호 받기' }}
         </button>
         </div>
 
         <div class="validation-msg" :style="{ color: phoneMsgColor }">
-          {{ phoneMsg }}
+          <span>{{ phoneMsg }}</span>
+          <svg v-if="availability.phone === true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#28a745" class="success-icon">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
         </div>
 
         <!-- 인증 코드 영역 -->
-        <div v-if="showCodeArea" class="verification-box">
-        <!-- <div class="verification-box"> -->
+        <div v-if="showCodeArea && !verifyOk" class="verification-box">
+        <!-- 개발용 -->
+        <!-- <div class="verification-box">  -->
+        <!--  -->
           <div class="input-row">
             <input
               v-model="verificationCode"
               type="text"
               placeholder="인증번호 6자리"
               class="custom-input flex-grow"
+              maxlength="6"
+              inputmode="numeric"
+              @input="onlyNumbers"
             />
         
             <button type="button" class="btn-outline" @click="onClickVerifyCode" :disabled="!canVerifyCode">
@@ -85,7 +94,10 @@
           autocomplete="email"
           />
         <div class="validation-msg" :style="{ color: emailMsgColor }">
-          {{ emailMsg }}
+          <span>{{ emailMsg }}</span>
+          <svg v-if="availability.email === true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#28a745" class="success-icon">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
         </div>
       </div>
           
@@ -101,7 +113,10 @@
           class="custom-input"
         />
         <div class="validation-msg" :style="{ color: nicknameMsgColor }">
-          {{ nicknameMsg }}
+          <span>{{ nicknameMsg }}</span>
+          <svg v-if="availability.nickname === true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#28a745" class="success-icon">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
         </div>
       </div>
 
@@ -116,6 +131,8 @@
             placeholder="password1234" 
             class="custom-input"
             autocomplete="current-password"
+            @blur="onBlurPassword"
+            @input="onBlurPassword"
           />
           <button type="button" class="toggle-pwd-btn" @click="togglePassword">
             <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -127,6 +144,12 @@
               <line x1="1" y1="1" x2="23" y2="23"></line>
             </svg>
           </button>
+        </div>
+        <div class="validation-msg" :style="{ color: passwordMsgColor }">
+          <span>{{ passwordMsg }}</span>
+          <svg v-if="availability.password === true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#28a745" class="success-icon">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -181,12 +204,14 @@ const availability = ref({
   phone: null, 
   email: null,
   nickname: null,
+  password: null,
 });
 
 // 메시지
 const phoneMsg = ref('');
 const emailMsg = ref('');
 const nicknameMsg = ref('');
+const passwordMsg = ref('');
 
 const verifyMsg = ref('');
 const signupMsg = ref('');
@@ -195,6 +220,7 @@ const signupMsg = ref('');
 const phoneMsgColor = computed(() => (availability.value.phone === false ? '#c00' : '#333'));
 const emailMsgColor = computed(() => (availability.value.email === false ? '#c00' : '#333'));
 const nicknameMsgColor = computed(() => (availability.value.nickname === false ? '#c00' : '#333'));
+const passwordMsgColor = computed(() => (availability.value.password === false ? '#c00' : '#333'));
 
 const verifyOk = ref(false);
 const verifyMsgColor = computed(() => (verifyOk.value ? '#333' : '#c00'));
@@ -242,15 +268,22 @@ const onBlurPhone = async () => {
     const available = getAvailable(data);
 
     availability.value.phone = available;
-    phoneMsg.value = available ? '사용 가능한 휴대폰 번호입니다.' : '이미 사용 중인 휴대폰 번호입니다.';
+    phoneMsg.value = available ? '가입 가능한 휴대폰 번호입니다.' : '이미 가입된 휴대폰 번호입니다.';
     if (!available) {
       showCodeArea.value = false;
     }
   } catch (e) {
     console.log(e);
-    availability.value.phone = null;
-    phoneMsg.value = '휴대폰 번호 확인 중 오류가 발생했습니다.';
     showCodeArea.value = false;
+
+    if (e.response && e.response.status === 400) {
+      availability.value.phone = false;
+      phoneMsg.value = '잘못된 휴대폰 번호 형식입니다. (숫자만 입력해주세요)';
+    }
+    else{
+      availability.value.phone = null;
+      phoneMsg.value = '휴대폰 번호 확인 중 오류가 발생했습니다.';
+    }
   } finally {
     loading.value.phoneCheck = false;
   }
@@ -270,11 +303,17 @@ const onBlurEmail = async () => {
     const available = getAvailable(data);
 
     availability.value.email = available;
-    emailMsg.value = available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.';
+    emailMsg.value = available ? '사용 가능한 이메일입니다.' : '이미 가입된 이메일입니다.';
   } catch (e) {
     console.log(e);
-    availability.value.email = null;
-    emailMsg.value = '이메일 확인 중 오류가 발생했습니다.';
+
+    if (e.response && e.response.status === 400) {
+      availability.value.email = false;
+      emailMsg.value = '잘못된 이메일 형식입니다.';
+    } else {
+      availability.value.email = null;
+      emailMsg.value = '이메일 확인 중 오류가 발생했습니다.';
+    }
   } finally {
     loading.value.emailCheck = false;
   }
@@ -297,10 +336,57 @@ const onBlurNickname = async () => {
     nicknameMsg.value = available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.';
   } catch (e) {
     console.log(e);
-    availability.value.nickname = null;
-    nicknameMsg.value = '닉네임 확인 중 오류가 발생했습니다.';
+
+    if (e.response && e.response.status === 400) {
+      availability.value.nickname = false;
+      nicknameMsg.value = '닉네임 형식이 올바르지 않습니다. (한글, 영문, 숫자 2~50자)';
+    } else {
+      availability.value.nickname = null;
+      nicknameMsg.value = '닉네임 확인 중 오류가 발생했습니다.';
+    }
   } finally {
     loading.value.nicknameCheck = false;
+  }
+};
+
+const onBlurPassword = () => {
+  const pw = form.value.password;
+
+  if (!pw) {
+    availability.value.password = null;
+    passwordMsg.value = '';
+    return;
+  }
+
+  const isValidChars = /^[a-zA-Z0-9!@#$%]*$/.test(pw);
+  
+  if (!isValidChars) {
+    availability.value.password = false;
+    passwordMsg.value = '사용할 수 없는 특수문자가 포함되어 있습니다. (!@#$%만 가능)';
+    return;
+  }
+
+  const hasLetter = /[a-zA-Z]/.test(pw);
+  const hasDigit = /[0-9]/.test(pw);
+  const hasSpecial = /[!@#$%]/.test(pw);
+
+  let count = 0;
+  if (hasLetter) count++;
+  if (hasDigit) count++;
+  if (hasSpecial) count++;
+
+  // 2가지 이상 조합 확인
+  if (count >= 2) {
+    if (pw.length < 8) {
+       availability.value.password = false;
+       passwordMsg.value = '비밀번호는 최소 8자 이상이어야 합니다.';
+    } else {
+       availability.value.password = true;
+       passwordMsg.value = '사용 가능한 비밀번호입니다.';
+    }
+  } else {
+    availability.value.password = false;
+    passwordMsg.value = '영문, 숫자, 특수문자(!@#$%) 중 2가지 이상을 조합해주세요.';
   }
 };
 
@@ -343,7 +429,10 @@ const canVerifyCode = computed(() => {
 const onClickVerifyCode = async () => {
   const phone = (form.value.phoneNumber || '').trim();
   const code = (verificationCode.value || '').trim();
-  if (!phone || !code) return;
+  if (!phone || !code){
+    verifyMsg.value = '휴대폰 번호와 인증 코드를 입력해주세요.';
+    return;
+  }
 
   loading.value.verifyCode = true;
   verifyOk.value = false;
@@ -353,10 +442,16 @@ const onClickVerifyCode = async () => {
     await UserApi.verifyPhoneCode(phone, code);
     verifyOk.value = true;
     verifyMsg.value = '휴대폰 인증이 완료되었습니다.';
+    phoneMsg.value = null;
   } catch (e) {
     console.log(e);
     verifyOk.value = false;
-    verifyMsg.value = '인증 코드가 올바르지 않거나 만료되었습니다.';
+
+    if (e.response && e.response.status === 400) {
+      verifyMsg.value = '인증번호가 일치하지 않거나 만료되었습니다.';
+    } else {
+      verifyMsg.value = '인증 확인 중 오류가 발생했습니다.';
+    }
   } finally {
     loading.value.verifyCode = false;
   }
@@ -409,6 +504,13 @@ const onClickSignup = async () => {
 const goLogin = () => {
   router.push('/user');
 };
+
+const onlyNumbers = (event) => {
+  // 입력된 값에서 숫자가 아닌 것(0-9가 아닌 것)을 모두 빈 문자열로 치환
+  const val = event.target.value.replace(/[^0-9]/g, '');
+  verificationCode.value = val;
+};
+
 </script>
 
 <style scoped>
@@ -500,10 +602,16 @@ gap: 10px;
   color: #ccc;
 }
 
-/* Focus Action: Black Border */
 .custom-input:focus {
   border-color: #111; 
   box-shadow: 0 0 0 1px #111;
+}
+
+.custom-input:disabled {
+  background-color: #F5F5F5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #EEE;
 }
 
 .pwd-input {
@@ -560,14 +668,22 @@ gap: 10px;
 /* Validation Message */
 .validation-msg {
   width: 100%;
-  text-align: right;
+  /* 오른쪽 정렬을 위해 flex-end 사용 */
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center; /* 수직 중앙 정렬 */
+  gap: 4px; /* 텍스트와 아이콘 사이 간격 */
+  
   font-size: 12px;
   margin-top: 6px;
   font-weight: 500;
-  min-height: 14px;     /* 메시지가 없어도 레이아웃 흔들림 방지 */
+  min-height: 16px; /* 아이콘 크기 고려하여 약간 키움 */
 }
 .validation-msg.center {
-  text-align: center;
+  justify-content: center;
+}
+.success-icon {
+  flex-shrink: 0; /* 아이콘이 찌그러지지 않게 */
 }
 
 /* Verification Code Area */
@@ -612,6 +728,13 @@ gap: 10px;
   white-space: nowrap; /* 줄바꿈 방지 */
   flex-shrink: 0; /* 버튼이 찌그러지지 않게 */
   transition: all 0.2s;
+}
+
+.btn-outline:disabled {
+  background-color: #F5F5F5;
+  color: #CCC;
+  border-color: #EEE;
+  cursor: not-allowed;
 }
 
 /* Footer */
