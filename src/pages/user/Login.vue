@@ -26,10 +26,15 @@
           <button type="button" @click="goFindId">아이디 찾기</button>
           <button type="button" @click="goFindPwd">비밀번호 찾기</button>
         </div>
-
-        <div class="actions">
-          <button class="btn-ghost" type="button" @click="goSocialSignup">소셜 로그인</button>
-        </div>
+        
+        <a
+          :href="`${baseUrl}/api/oauth2/authorization/google`"
+            target="_blank"
+            class="btn-social-google"
+        >
+          <img src="/src/assets/google_logo.svg" width="20px" height="20px"/>
+          소셜 로그인
+      </a>
       </form>
     </div>
   </div>
@@ -39,6 +44,8 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from '../../stores/user';
+
+const baseUrl = import.meta.env.VITE_API_URL;
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -66,9 +73,7 @@ function goFindId() {
 function goFindPwd() {
   router.push({ name: "FindPwd" });
 }
-function goSocialSignup() {
-  router.push({ name: "SocialSignup" });
-}
+
 </script>
 
 <style scoped>

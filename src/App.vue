@@ -244,6 +244,25 @@ button:disabled {
   color: var(--muted);
 }
 
+.btn-social-google {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  width:fit-content;
+
+  font-weight: 600;
+  font-size: small;
+  background: #fff;
+  color: var(--text);
+  text-decoration: none;
+
+  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .app-main {
