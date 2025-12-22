@@ -1,6 +1,16 @@
 <template>
   <header class="topbar">
     <div class="topbar__inner">
+      <!-- ✅ 모바일에서만 보이는 메뉴 버튼 -->
+      <button
+        class="topbar__menu"
+        type="button"
+        aria-label="Open navigation"
+        @click="$emit('toggle-nav')"
+      >
+        ☰
+      </button>
+
       <button class="topbar__brand" type="button" @click="goHome" aria-label="Go to Home">
         Newstagram
       </button>
@@ -19,6 +29,8 @@
 import { useRouter } from 'vue-router';
 import UserApi from '../api/UserApi';
 import { useUserStore } from '../stores/user';
+
+defineEmits(['toggle-nav']); // ✅ 추가
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -79,5 +91,26 @@ const goMypage = () => router.push({ name: 'mypage' });
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ✅ 추가: 모바일 메뉴 버튼 (기존 CSS 유지 + 최소 추가) */
+.topbar__menu {
+  display: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .topbar__menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

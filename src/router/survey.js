@@ -1,13 +1,14 @@
-import Survey from '@/pages/survey/Survey.vue';
+import Survey from "@/pages/survey/Survey.vue";
 
-export default [
+const surveyRoutes = [
   {
-    path: '/survey',
-    name: 'Survey',
+    path: "/survey",
+    name: "Survey",
     component: Survey,
     meta: {
-      hideHeader: true,
-      hideNavi: true,
-    }
+      hideGlobalPrompt: true,
+    },
   },
 ];
+
+export default surveyRoutes;

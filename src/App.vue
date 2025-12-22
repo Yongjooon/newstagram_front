@@ -1,10 +1,22 @@
 <template>
   <div class="app-shell">
     <!-- 로그인 상태 + 현재 라우트가 레이아웃 허용일 때만 노출 -->
-    <Header v-if="showLayout" />
+    <Header v-if="showLayout" @toggle-nav="toggleNav" />
 
     <div v-if="showLayout" class="app-main">
-      <Navi class="app-nav" />
+      <!-- ✅ 기존 Navi 그대로 두되, 감싸는 래퍼만 추가 -->
+      <div class="app-nav-wrap" :class="{ 'is-open': isNavOpen }">
+        <Navi class="app-nav" />
+      </div>
+
+      <!-- ✅ 모바일에서만 오버레이 -->
+      <div
+        v-if="isMobile && isNavOpen"
+        class="nav-backdrop"
+        @click="closeNav"
+        aria-hidden="true"
+      />
+
       <main class="app-content" role="main">
         <!-- ✅ Mypage에서는 전역 WritePrompt 숨김 -->
         <section v-if="showGlobalPrompt" class="global-prompt card card--padded">
@@ -23,20 +35,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/Header.vue';
 import Navi from '@/components/Navi.vue';
 import WritePrompt from '@/components/WritePrompt.vue';
 import { useUserStore } from '@/stores/user';
 
+import { usePromptStore } from '@/stores/promptStore';
+
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const promptStore = usePromptStore();
 
-/**
- * userStore.isLogin 이 boolean일 수도 있고, RefImpl일 수도 있으니 방어적으로 처리.
- */
 const isLoggedIn = computed(() => {
   const v = (userStore.isLogin && typeof userStore.isLogin === 'object' && 'value' in userStore.isLogin)
     ? userStore.isLogin.value
@@ -45,36 +57,70 @@ const isLoggedIn = computed(() => {
   return Boolean(v);
 });
 
-/**
- * 인증 화면에서는 레이아웃을 무조건 숨기기 위해 meta.hideLayout 지원
- */
 const showLayout = computed(() => {
   if (route.meta?.hideLayout) return false;
   return isLoggedIn.value;
 });
 
-/**
- * ✅ 전역 WritePrompt 숨김 대상 라우트들
- * - Mypage.vue 라우트 name이 실제로 무엇인지에 따라 수정 필요
- */
 const hidePromptOnRoutes = new Set([
-  'mypage', // ← 여기만 "실제 라우트 name"으로 맞추면 됨
+  'mypage', 'survey'
 ]);
 
 const showGlobalPrompt = computed(() => {
-  // 레이아웃이 보일 때만 전역 프롬프트도 고려
   if (!showLayout.value) return false;
-
-  // meta로도 숨길 수 있게 지원 (선택)
   if (route.meta?.hideGlobalPrompt) return false;
 
   const name = route.name ? String(route.name) : '';
   return !hidePromptOnRoutes.has(name);
 });
 
-/**
- * 어떤 페이지에서든 검색하면 Prompt.vue로 이동해서 결과 표시
- */
+/* (유지) 히스토리 로딩 */
+watch(
+  () => showLayout.value,
+  async (visible) => {
+    if (visible) {
+      await promptStore.loadHistory({ force: false });
+    } else {
+      promptStore.clearHistory();
+    }
+  },
+  { immediate: true }
+);
+
+/* ✅ 모바일 네비 토글 */
+const isNavOpen = ref(false);
+const isMobile = ref(false);
+
+function syncIsMobile() {
+  isMobile.value = window.matchMedia('(max-width: 900px)').matches;
+  if (!isMobile.value) isNavOpen.value = false;
+}
+
+function toggleNav() {
+  if (!isMobile.value) return;
+  isNavOpen.value = !isNavOpen.value;
+}
+
+function closeNav() {
+  isNavOpen.value = false;
+}
+
+onMounted(() => {
+  syncIsMobile();
+  window.addEventListener('resize', syncIsMobile, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncIsMobile);
+});
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (isMobile.value) closeNav();
+  }
+);
+
 const onGlobalSubmit = async (promptText) => {
   const q = (promptText || '').toString().trim();
   if (!q) return;
@@ -87,7 +133,7 @@ const onGlobalSubmit = async (promptText) => {
 </script>
 
 <style>
-/* ============ Base Reset ============ */
+/* ====== 아래는 당신이 준 CSS를 "그대로" 유지 ====== */
 :root {
   --bg: #f6f7fb;
   --panel: #ffffff;
@@ -119,7 +165,6 @@ body {
   line-height: 1.45;
 }
 
-/* ============ Layout ============ */
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -145,12 +190,10 @@ body {
   padding: 24px 16px 40px;
 }
 
-/* ✅ Global Prompt Section */
 .global-prompt {
   margin-bottom: 12px;
 }
 
-/* ============ Common UI ============ */
 .container {
   width: 100%;
   max-width: 1100px;
@@ -191,7 +234,6 @@ body {
   color: var(--muted);
 }
 
-/* Forms */
 .form {
   display: flex;
   flex-direction: column;
@@ -231,7 +273,6 @@ textarea:focus {
   margin-top: 6px;
 }
 
-/* Buttons */
 button {
   appearance: none;
   border: 1px solid var(--line);
@@ -285,11 +326,45 @@ button:disabled {
   color: var(--muted);
 }
 
-/* Responsive */
+/* ✅ 당신이 준 responsive 유지 */
 @media (max-width: 900px) {
   .app-main {
     grid-template-columns: 1fr;
     padding: 12px;
   }
+}
+
+/* ====== 여기부터 "추가"만 (기존 규칙 변경 없음) ====== */
+
+/* ✅ 모바일에서만 Navi를 drawer로 숨김/표시 */
+@media (max-width: 900px) {
+  .app-nav-wrap {
+    position: fixed;
+    top: 56px; /* Header 높이 */
+    left: 0;
+    width: 78vw;
+    max-width: 320px;
+    height: calc(100vh - 56px);
+    z-index: 60;
+
+    transform: translateX(-110%);
+    transition: transform 0.2s ease;
+  }
+
+  .app-nav-wrap.is-open {
+    transform: translateX(0);
+  }
+
+  .nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ✅ 데스크톱에서는 wrapper가 레이아웃에 자연스럽게 들어가도록 */
+.app-nav-wrap {
+  /* grid 첫 번째 컬럼에 들어가며, 별도 스타일로 기존을 깨지 않음 */
 }
 </style>
