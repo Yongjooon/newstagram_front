@@ -1,4 +1,3 @@
-<!-- src/pages/home/Home.vue -->
 <template>
   <main style="padding:16px;">
 
@@ -43,7 +42,7 @@
             cursor:pointer;
             width: 100%;
           "
-          :title="g.article?.url ? '클릭하면 기사 링크를 엽니다.' : ''"
+          :title="g.article?.url ? '클릭하면 모달로 기사 원문을 보여줍니다.' : ''"
         >
           <div style="display:flex; gap:12px;">
             <div style="width:120px; flex:0 0 120px;">
@@ -72,16 +71,6 @@
                 {{ g.article?.title }}
               </h3>
 
-              <div style="
-                  font-size:12px;
-                  color:#666;
-                  margin-bottom:8px;
-                  display: flex;       
-                  align-items: center;
-                  gap: 4px;
-              ">
-              </div>
-
               <p style="margin:0; color:#333; line-height:1.4;">
                 {{ g.article?.description || g.article?.content }}
               </p>
@@ -96,18 +85,40 @@
         </div>
       </div>
     </section>
+
+    <div
+      v-if="modalOpen"
+      class="article-modal__overlay"
+      @click.self="closeModal"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="article-modal__panel">
+        <header class="article-modal__header">
+          <span>기사 원문</span>
+          <button type="button" @click="closeModal">닫기</button>
+        </header>
+
+        <iframe
+          v-if="iframeUrl"
+          :src="iframeUrl"
+          class="article-modal__iframe"
+          frameborder="0"
+        />
+      </div>
+    </div>
+
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import HomeApi from '../../api/HomeApi';
 import LogApi from '../../api/LogApi';
 import { useHomePeriodStore } from '../../stores/homePeriodStore';
 
 const homePeriodStore = useHomePeriodStore();
 
-// store.period를 이 페이지의 period로 사용 (Pinia setup store는 ref가 자동 언랩됨)
 const periodType = ref(homePeriodStore.period || 'REALTIME');
 
 const cursor = ref(0);
@@ -121,6 +132,46 @@ const loadingMore = ref(false);
 const errorMsg = ref('');
 
 let didMount = false;
+
+const JTBC_PREFIX = 'https://news.jtbc.co.kr/';
+
+const modalOpen = ref(false);
+const iframeUrl = ref('');
+
+let __scrollY = 0;
+
+const lockBodyScroll = () => {
+  __scrollY = window.scrollY || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
+};
+
+const unlockBodyScroll = () => {
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  window.scrollTo(0, __scrollY);
+};
+
+const onKeyDown = (e) => {
+  if (!modalOpen.value) return;
+  if (e.key === 'Escape') closeModal();
+};
+
+const attachKeyListener = () => window.addEventListener('keydown', onKeyDown);
+const detachKeyListener = () => window.removeEventListener('keydown', onKeyDown);
+
+const openInNewWindowWithNotice = (url) => {
+  alert('신문사 제한으로 외부창에서 기사를 띄웁니다.');
+  if (url) window.open(url, '_blank', 'noopener,noreferrer');
+};
 
 const tabStyle = (type) => {
   const active = periodType.value === type;
@@ -182,12 +233,8 @@ const loadInitial = async () => {
 
 const changePeriod = async (type) => {
   if (periodType.value === type) return;
-
-  // store에도 반영 (Navi/다른 컴포넌트와 동기화)
   homePeriodStore.setPeriod(type);
-  // periodType은 watch에서 동기화되지만, UX를 위해 즉시 반영
   periodType.value = type;
-
   reset();
   await loadInitial();
 };
@@ -223,11 +270,31 @@ const openArticle = async (article) => {
     console.log(e);
   }
 
-  if (!article?.url) return;
-  window.open(article.url, '_blank', 'noopener,noreferrer');
+  const url = (article?.url || '').trim();
+  if (!url) return;
+
+  // JTBC만 안내 후 새창
+  if (url.startsWith(JTBC_PREFIX)) {
+    openInNewWindowWithNotice(url);
+    return;
+  }
+
+  // 그 외는 무조건 모달
+  iframeUrl.value = url;
+  modalOpen.value = true;
+
+  lockBodyScroll();
+  attachKeyListener();
 };
 
-// Navi에서 period를 바꾸고 들어오는 경우도 반영
+const closeModal = () => {
+  modalOpen.value = false;
+  iframeUrl.value = '';
+
+  unlockBodyScroll();
+  detachKeyListener();
+};
+
 watch(
   () => homePeriodStore.period,
   async (p) => {
@@ -236,7 +303,6 @@ watch(
 
     periodType.value = p;
 
-    // mount 이전에는 onMounted가 로딩을 하므로 중복 호출 방지
     if (!didMount) return;
 
     reset();
@@ -245,10 +311,14 @@ watch(
 );
 
 onMounted(async () => {
-  // 초기 진입 시 store 값으로 동기화 후 로딩
   periodType.value = homePeriodStore.period || 'REALTIME';
   await loadInitial();
   didMount = true;
+});
+
+onBeforeUnmount(() => {
+  detachKeyListener();
+  if (modalOpen.value) unlockBodyScroll();
 });
 </script>
 
@@ -353,5 +423,55 @@ button:hover {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.article-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 12px;
+}
+
+.article-modal__panel {
+  width: min(1200px, 100%);
+  height: 90vh;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.article-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  font-weight: 700;
+}
+
+.article-modal__iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .article-modal__overlay {
+    padding: 0;
+  }
+
+  .article-modal__panel {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
 }
 </style>

@@ -1,11 +1,7 @@
-<!-- src/pages/prompt/Prompt.vue -->
 <template>
   <main style="display:flex; gap:16px; padding:16px;">
-    <!-- 우측: 기사 리스트 -->
     <section style="flex:1; border:1px solid #ddd; border-radius:8px; padding:12px; background: white;">
-      <!-- <hr style="margin:16px 0;" /> -->
 
-      <!-- 현재 검색 상태 -->
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
         <div>
           <div style="font-size:14px; color:#666;">현재 검색어</div>
@@ -52,7 +48,7 @@
                 background:#fff;
                 cursor:pointer;
               "
-              :title="a.url ? '클릭하면 기사 링크를 엽니다.' : ''"
+              :title="a.url ? '클릭하면 모달로 기사 원문을 보여줍니다.' : ''"
             >
               <div style="display:flex; gap:12px;">
                 <!-- 썸네일 -->
@@ -103,11 +99,33 @@
         </div>
       </div>
     </section>
+
+    <div
+      v-if="modalOpen"
+      class="article-modal__overlay"
+      @click.self="closeModal"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="article-modal__panel">
+        <header class="article-modal__header">
+          <span>기사 원문</span>
+          <button type="button" @click="closeModal">닫기</button>
+        </header>
+
+        <iframe
+          v-if="iframeUrl"
+          :src="iframeUrl"
+          class="article-modal__iframe"
+          frameborder="0"
+        />
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import PromptApi from '../../api/PromptApi';
 import LogApi from '../../api/LogApi';
@@ -132,15 +150,57 @@ const loadingSearch = ref(false);
 const loadingMore = ref(false);
 const errorMsg = ref('');
 
-/**
- * ✅ 수정 포인트 1
- * - store의 ref를 직접 덮어쓰지 말고(setup store 깨짐)
- * - store에 raw(id/query) + searchHistory(문자열) 동기화
- */
+const JTBC_PREFIX = 'https://news.jtbc.co.kr/';
+
+const modalOpen = ref(false);
+const iframeUrl = ref('');
+
+let __scrollY = 0;
+
+const lockBodyScroll = () => {
+  __scrollY = window.scrollY || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
+};
+
+const unlockBodyScroll = () => {
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  window.scrollTo(0, __scrollY);
+};
+
+const onKeyDown = (e) => {
+  if (!modalOpen.value) return;
+  if (e.key === 'Escape') closeModal();
+};
+
+const attachKeyListener = () => window.addEventListener('keydown', onKeyDown);
+const detachKeyListener = () => window.removeEventListener('keydown', onKeyDown);
+
+const openInNewWindowWithNotice = (url) => {
+  alert('신문사 제한으로 외부창에서 기사를 띄웁니다.');
+  if (url) window.open(url, '_blank', 'noopener,noreferrer');
+};
+
+const closeModal = () => {
+  modalOpen.value = false;
+  iframeUrl.value = '';
+  unlockBodyScroll();
+  detachKeyListener();
+};
+
+
 const syncStoreHistoryFromApi = () => {
   const rawArr = Array.isArray(historyList.value) ? historyList.value : [];
 
-  // 서버 응답이 [{id, query}] 형태라고 가정하되 방어
   const normalizedRaw = rawArr
     .map((x) => {
       if (!x || typeof x !== 'object') return null;
@@ -154,16 +214,13 @@ const syncStoreHistoryFromApi = () => {
 
   const queries = normalizedRaw.map((x) => x.query);
 
-  // ✅ store가 확장되어 있다면 raw도 같이 넣어줌(삭제 기능/네비 표시)
   if (typeof promptStore.setRaw === 'function') {
     promptStore.setRaw(normalizedRaw);
   }
 
-  // ✅ 문자열 히스토리는 항상 setHistory로
   if (typeof promptStore.setHistory === 'function') {
     promptStore.setHistory(queries);
   } else {
-    // 예외 방어
     promptStore.searchHistory.value = queries;
   }
 };
@@ -172,7 +229,6 @@ const reloadHistory = async () => {
   loadingHistory.value = true;
   try {
     const data = await PromptApi.getPromptList();
-    // PromptApi.getPromptList()는 data를 return하므로 그대로 array인지 확인
     historyList.value = Array.isArray(data) ? data : [];
     syncStoreHistoryFromApi();
   } catch (e) {
@@ -224,7 +280,6 @@ const runSearch = async (query) => {
 
     await fetchArticles({ query: q, nextPage: 0, append: false });
 
-    // ✅ 검색 후 히스토리 최신화
     await reloadHistory();
   } catch (e) {
     console.log(e);
@@ -272,11 +327,20 @@ const openArticle = async (a) => {
     console.log(e);
   }
 
-  if (!a?.url) return;
-  window.open(a.url, '_blank', 'noopener,noreferrer');
+  const url = (a?.url || '').trim();
+  if (!url) return;
+
+  if (url.startsWith(JTBC_PREFIX)) {
+    openInNewWindowWithNotice(url);
+    return;
+  }
+
+  iframeUrl.value = url;
+  modalOpen.value = true;
+  lockBodyScroll();
+  attachKeyListener();
 };
 
-// ✅ /prompt?q=... 로 들어오면 즉시 검색
 watch(
   () => route.query.q,
   async (q) => {
@@ -292,6 +356,11 @@ watch(
 
 onMounted(async () => {
   await reloadHistory();
+});
+
+onBeforeUnmount(() => {
+  detachKeyListener();
+  if (modalOpen.value) unlockBodyScroll();
 });
 </script>
 
@@ -381,6 +450,56 @@ div[style*="color:#c00"] {
 @media (max-width: 900px) {
   main {
     flex-direction: column;
+  }
+}
+
+.article-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 12px;
+}
+
+.article-modal__panel {
+  width: min(1200px, 100%);
+  height: 90vh;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.article-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  font-weight: 700;
+}
+
+.article-modal__iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .article-modal__overlay {
+    padding: 0;
+  }
+
+  .article-modal__panel {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
   }
 }
 </style>

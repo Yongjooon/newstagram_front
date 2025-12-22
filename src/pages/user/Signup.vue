@@ -278,7 +278,7 @@ const onBlurPhone = async () => {
 
     if (e.response && e.response.status === 400) {
       availability.value.phone = false;
-      phoneMsg.value = '잘못된 휴대폰 번호 형식입니다. (숫자만 입력해주세요)';
+      phoneMsg.value = '잘못된 휴대폰 번호 형식입니다.';
     }
     else{
       availability.value.phone = null;
