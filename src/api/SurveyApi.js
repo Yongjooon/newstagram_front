@@ -22,4 +22,10 @@ export default {
     );
     return data;
   },
+
+  // 유저 임베딩 데이터 조회
+  async getUserEmbedding() {
+    const { data } = await api.get(`${BASE_URL}/survey/users/embedding`);
+    return data;
+  },
 };
