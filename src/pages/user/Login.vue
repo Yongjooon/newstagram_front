@@ -61,8 +61,8 @@
         <div class="social-buttons">
           <a
             :href="`${baseUrl}/api/oauth2/authorization/google`"
-              target="_blank"
               class="btn-social"
+              target="_self"
           >
             <img src="/src/assets/google_logo.svg" alt="Google" width="20" />
             <span class="social-text">Google 계정으로 로그인</span>

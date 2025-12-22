@@ -64,13 +64,15 @@ export const useUserStore = defineStore('user', () => {
   };
 
   // 소셜 로그인(토큰/아이디 저장)
-  const socialLigin = async (data) => {
+  const socialLogin = async (user) => {
     try {
-      state.value.token = data?.token || '';
-      state.value.refreshToken = data?.refreshToken || '';
-      state.value.initialized = data?.initialized;
-      state.value.user.userId = data?.userId || data?.uerId || ''; 
+      state.value.token = user.token;
+      state.value.refreshToken = user.refreshToken;
+      state.value.initialized = user.initialized;
+      state.value.user.userId = "tmp"; 
+
       localStorage.setItem('user', JSON.stringify(state.value));
+
       return true;
     } catch (error) {
       throw error;
@@ -118,7 +120,7 @@ export const useUserStore = defineStore('user', () => {
     id,
     isLogin,
     login,
-    socialLigin,
+    socialLogin,
     logout,
     getToken,
     setToken,

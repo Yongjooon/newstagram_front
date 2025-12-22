@@ -6,6 +6,12 @@ export default[
         meta: { hideLayout: true },
     },
     {
+        path: '/user/oauth/google',
+        name: 'SocialLoginHandler',
+        component:()=>import('../pages/user/SocialLoginHandler.vue'),
+        meta: { hideLayout: true },
+    },
+    {
         path:'/user/signup',
         name:'Signup',
         component:()=>import('../pages/user/Signup.vue'),
