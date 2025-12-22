@@ -6,6 +6,7 @@ import mypageRoutes from './mypage';
 import promptRoutes from './prompt';
 import userRoutes from './user';
 import surveyRoutes from './survey';
+import budongRoutes from './budong'
 
 import { useUserStore } from "@/stores/user";
 
@@ -22,6 +23,7 @@ const router = createRouter({
     ...promptRoutes,
     ...userRoutes,
     ...surveyRoutes,
+    ...budongRoutes,
     ]
 });
 

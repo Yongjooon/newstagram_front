@@ -1,45 +1,9 @@
 <!-- src/pages/prompt/Prompt.vue -->
 <template>
   <main style="display:flex; gap:16px; padding:16px;">
-    <!-- 좌측: 검색 기록 -->
-    <aside style="width:280px; border:1px solid #ddd; border-radius:8px; padding:12px;">
-      <h2 style="margin:0 0 12px;">검색 기록</h2>
-
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <button type="button" @click="reloadHistory" :disabled="loadingHistory">
-          새로고침
-        </button>
-      </div>
-
-      <div style="max-height:520px; overflow:auto; border-top:1px solid #eee; padding-top:8px;">
-        <div v-if="loadingHistory" style="padding:8px 0;">불러오는 중...</div>
-
-        <div v-else-if="!historyList.length" style="padding:8px 0; color:#666;">
-          검색 기록이 없습니다.
-        </div>
-
-        <ul v-else style="list-style:none; padding:0; margin:0;">
-          <li v-for="item in historyList" :key="item.id" style="margin-bottom:8px;">
-            <button
-              type="button"
-              @click="onClickHistory(item)"
-              :style="historyButtonStyle(item)"
-              :disabled="loadingSearch || loadingMore"
-              title="클릭하면 해당 검색어로 다시 검색합니다."
-            >
-              {{ item.query }}
-            </button>
-          </li>
-        </ul>
-      </div>
-    </aside>
-
-    <!-- 우측: 프롬프트 작성 + 기사 리스트 -->
+    <!-- 우측: 기사 리스트 -->
     <section style="flex:1; border:1px solid #ddd; border-radius:8px; padding:12px;">
       <h1 style="margin:0 0 12px;">Prompt</h1>
-
-      <!-- 프롬프트 작성 컴포넌트 -->
-      <WritePrompt @submit="handleSubmit" />
 
       <hr style="margin:16px 0;" />
 
@@ -145,10 +109,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import WritePrompt from '@/components/WritePrompt.vue';
-import PromptApi from '@/api/PromptApi.js';
-import LogApi from '@/api/LogApi.js';
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import PromptApi from '../../api/PromptApi';
+import LogApi from '../../api/LogApi';
+import { usePromptStore } from '../../stores/promptStore';
+
+const route = useRoute();
+const promptStore = usePromptStore();
 
 const LIMIT = 15;
 
@@ -166,11 +134,20 @@ const loadingSearch = ref(false);
 const loadingMore = ref(false);
 const errorMsg = ref('');
 
+const syncStoreHistoryFromApi = () => {
+  const queries = (historyList.value || [])
+    .map((x) => (x?.query || '').trim())
+    .filter(Boolean);
+
+  promptStore.searchHistory = queries;
+};
+
 const reloadHistory = async () => {
   loadingHistory.value = true;
   try {
     const data = await PromptApi.getPromptList();
     historyList.value = Array.isArray(data) ? data : [];
+    syncStoreHistoryFromApi();
   } catch (e) {
     console.log(e);
   } finally {
@@ -183,10 +160,6 @@ const resetArticles = () => {
   page.value = 0;
   hasMore.value = false;
   errorMsg.value = '';
-};
-
-const clearSelected = () => {
-  selectedHistoryId.value = null;
 };
 
 const fetchArticles = async ({ query, nextPage, append }) => {
@@ -218,6 +191,10 @@ const runSearch = async (query) => {
   try {
     currentQuery.value = q;
 
+    if (typeof promptStore.addSearch === 'function') {
+      promptStore.addSearch(q);
+    }
+
     await fetchArticles({ query: q, nextPage: 0, append: false });
     await reloadHistory();
   } catch (e) {
@@ -243,17 +220,6 @@ const loadMore = async () => {
   }
 };
 
-const handleSubmit = async (promptText) => {
-  selectedHistoryId.value = null;
-  await runSearch(promptText);
-};
-
-const onClickHistory = async (item) => {
-  if (!item || !item.query) return;
-  selectedHistoryId.value = item.id ?? null;
-  await runSearch(item.query);
-};
-
 const retrySearch = async () => {
   if (!currentQuery.value) return;
   await runSearch(currentQuery.value);
@@ -269,7 +235,6 @@ const formatDate = (iso) => {
 };
 
 const openArticle = async (a) => {
-
   try {
     if (a?.id !== undefined && a?.id !== null) {
       await LogApi.addLog(a.id);
@@ -282,18 +247,19 @@ const openArticle = async (a) => {
   window.open(a.url, '_blank', 'noopener,noreferrer');
 };
 
-const historyButtonStyle = (item) => {
-  const isActive = (item?.id ?? null) === selectedHistoryId.value;
-  return {
-    width: '100%',
-    textAlign: 'left',
-    padding: '10px 10px',
-    borderRadius: '8px',
-    border: '1px solid ' + (isActive ? '#333' : '#ddd'),
-    background: isActive ? '#f3f3f3' : '#fff',
-    cursor: 'pointer',
-  };
-};
+// ✅ /prompt?q=... 로 들어오면 즉시 검색
+watch(
+  () => route.query.q,
+  async (q) => {
+    const keyword = (q || '').toString().trim();
+    if (!keyword) return;
+    if (keyword === currentQuery.value) return;
+
+    selectedHistoryId.value = null;
+    await runSearch(keyword);
+  },
+  { immediate: true }
+);
 
 onMounted(async () => {
   await reloadHistory();
@@ -301,18 +267,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-  main {
+main {
   display: flex;
   gap: 16px;
   padding: 16px;
-}
-
-/* 좌측 aside / 우측 section을 카드 스타일로 */
-aside[style*="width:280px"][style*="border:1px solid #ddd"] {
-  background: var(--panel);
-  border: 1px solid var(--line) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: var(--shadow);
 }
 
 section[style*="flex:1"][style*="border:1px solid #ddd"] {
@@ -328,34 +286,6 @@ h1 {
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--text);
-}
-
-h2 {
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
-/* history 스크롤 영역 */
-div[style*="max-height:520px"][style*="overflow:auto"] {
-  border-top: 1px solid var(--line) !important;
-}
-
-/* history 버튼(선택/hover 개선) */
-button[title*="해당 검색어"] {
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.04s ease;
-}
-
-button[title*="해당 검색어"]:hover {
-  background: #fafafa !important;
-  border-color: #d1d5db !important;
-}
-
-button[title*="해당 검색어"]:active {
-  transform: translateY(1px);
 }
 
 /* 기사 카드 버튼 */
@@ -418,15 +348,10 @@ div[style*="color:#c00"] {
   color: #b91c1c !important;
 }
 
-/* 반응형: 모바일에서 좌/우 1열 */
+/* 반응형 */
 @media (max-width: 900px) {
   main {
     flex-direction: column;
   }
-
-  aside[style*="width:280px"] {
-    width: 100% !important;
-  }
 }
-
 </style>

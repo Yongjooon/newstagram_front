@@ -1,6 +1,5 @@
 <template>
   <section>
-
     <div>
       <textarea
         v-model="text"

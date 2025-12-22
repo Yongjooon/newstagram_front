@@ -6,6 +6,11 @@
     <div v-if="showLayout" class="app-main">
       <Navi class="app-nav" />
       <main class="app-content" role="main">
+        <!-- ✅ Mypage에서는 전역 WritePrompt 숨김 -->
+        <section v-if="showGlobalPrompt" class="global-prompt card card--padded">
+          <WritePrompt @submit="onGlobalSubmit" />
+        </section>
+
         <router-view />
       </main>
     </div>
@@ -19,18 +24,18 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/Header.vue';
 import Navi from '@/components/Navi.vue';
+import WritePrompt from '@/components/WritePrompt.vue';
 import { useUserStore } from '@/stores/user';
 
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 
 /**
  * userStore.isLogin 이 boolean일 수도 있고, RefImpl일 수도 있으니 방어적으로 처리.
- * - boolean이면 그대로 사용
- * - ref면 .value 사용
  */
 const isLoggedIn = computed(() => {
   const v = (userStore.isLogin && typeof userStore.isLogin === 'object' && 'value' in userStore.isLogin)
@@ -42,12 +47,43 @@ const isLoggedIn = computed(() => {
 
 /**
  * 인증 화면에서는 레이아웃을 무조건 숨기기 위해 meta.hideLayout 지원
- * (router에 /user, /signup, /find-id, /find-pwd, /password-reset 등에 meta: { hideLayout: true } 추가 권장)
  */
 const showLayout = computed(() => {
   if (route.meta?.hideLayout) return false;
   return isLoggedIn.value;
 });
+
+/**
+ * ✅ 전역 WritePrompt 숨김 대상 라우트들
+ * - Mypage.vue 라우트 name이 실제로 무엇인지에 따라 수정 필요
+ */
+const hidePromptOnRoutes = new Set([
+  'mypage', // ← 여기만 "실제 라우트 name"으로 맞추면 됨
+]);
+
+const showGlobalPrompt = computed(() => {
+  // 레이아웃이 보일 때만 전역 프롬프트도 고려
+  if (!showLayout.value) return false;
+
+  // meta로도 숨길 수 있게 지원 (선택)
+  if (route.meta?.hideGlobalPrompt) return false;
+
+  const name = route.name ? String(route.name) : '';
+  return !hidePromptOnRoutes.has(name);
+});
+
+/**
+ * 어떤 페이지에서든 검색하면 Prompt.vue로 이동해서 결과 표시
+ */
+const onGlobalSubmit = async (promptText) => {
+  const q = (promptText || '').toString().trim();
+  if (!q) return;
+
+  await router.push({
+    name: 'prompt',
+    query: { q },
+  });
+};
 </script>
 
 <style>
@@ -107,6 +143,11 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 24px 16px 40px;
+}
+
+/* ✅ Global Prompt Section */
+.global-prompt {
+  margin-bottom: 12px;
 }
 
 /* ============ Common UI ============ */
