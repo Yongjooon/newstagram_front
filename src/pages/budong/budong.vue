@@ -1,7 +1,7 @@
 <!-- src/pages/my/My.vue -->
 <template>
   <main style="padding:16px;">
-    <h1 style="margin:0 0 12px;">My</h1>
+    <h1 style="margin:0 0 12px;">부동산</h1>
 
     <section style="display:flex; gap:8px; margin-bottom:12px;">
       <button type="button" @click="reload" :disabled="loading || loadingMore">
@@ -21,7 +21,7 @@
 
     <section v-if="!loading">
       <div v-if="isEmpty" style="padding:12px 0; color:#666;">
-        로깅된 기사가 없습니다.
+        부동산 기사가 없습니다.
       </div>
 
       <div v-else style="display:flex; flex-direction:column; gap:12px;">
@@ -89,7 +89,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import MyApi from '../../api/MyApi';
+import BudongApi from '../../api/BudongApi';
 import LogApi from '../../api/LogApi';
 
 const LIMIT = 15;
@@ -124,7 +124,7 @@ const reset = () => {
 };
 
 const fetchPage = async ({ nextPage, append }) => {
-  const data = await MyApi.getMyArticles(nextPage, LIMIT);
+  const data = await BudongApi.getMyArticles(nextPage, LIMIT);
   const list = Array.isArray(data) ? data : [];
 
   if (!append) articles.value = list;
@@ -146,7 +146,7 @@ const loadInitial = async () => {
     }
   } catch (e) {
     console.log(e);
-    errorMsg.value = '추천 기사를 불러오는 중 오류가 발생했습니다.';
+    errorMsg.value = '부동산 기사를 불러오는 중 오류가 발생했습니다.';
   } finally {
     loading.value = false;
   }

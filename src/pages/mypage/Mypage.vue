@@ -103,8 +103,8 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import MypageApi from '@/api/MypageApi.js';
-import UserApi from '@/api/UserApi.js';
+import MypageApi from '../../api/MypageApi';
+import UserApi from '../../api/UserApi';
 
 const myInfo = ref(null);
 

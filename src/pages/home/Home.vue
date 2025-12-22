@@ -99,13 +99,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import HomeApi from '@/api/HomeApi.js';
-import LogApi from '@/api/LogApi.js';
+import { ref, onMounted, watch } from 'vue';
+import HomeApi from '../../api/HomeApi';
+import LogApi from '../../api/LogApi';
+import { useHomePeriodStore } from '../../stores/homePeriodStore';
 
-const periodType = ref('REALTIME');
+const homePeriodStore = useHomePeriodStore();
+
+// store.period를 이 페이지의 period로 사용 (Pinia setup store는 ref가 자동 언랩됨)
+const periodType = ref(homePeriodStore.period || 'REALTIME');
+
 const cursor = ref(0);
-
 const groups = ref([]);
 
 const hasNext = ref(false);
@@ -114,6 +118,8 @@ const nextCursor = ref(0);
 const loading = ref(false);
 const loadingMore = ref(false);
 const errorMsg = ref('');
+
+let didMount = false;
 
 const tabStyle = (type) => {
   const active = periodType.value === type;
@@ -126,9 +132,7 @@ const tabStyle = (type) => {
   };
 };
 
-const groupKey = (g) => {
-  return `${g.groupId}-${g.rankInGroup}-${g.article?.id ?? 'na'}`;
-};
+const groupKey = (g) => `${g.groupId}-${g.rankInGroup}-${g.article?.id ?? 'na'}`;
 
 const formatDate = (iso) => {
   try {
@@ -166,7 +170,6 @@ const loadInitial = async () => {
   try {
     cursor.value = 0;
     await fetchPage({ type: periodType.value, cur: cursor.value, append: false });
-
     if (hasNext.value) cursor.value = nextCursor.value;
   } catch (e) {
     console.log(e);
@@ -178,7 +181,12 @@ const loadInitial = async () => {
 
 const changePeriod = async (type) => {
   if (periodType.value === type) return;
+
+  // store에도 반영 (Navi/다른 컴포넌트와 동기화)
+  homePeriodStore.setPeriod(type);
+  // periodType은 watch에서 동기화되지만, UX를 위해 즉시 반영
   periodType.value = type;
+
   reset();
   await loadInitial();
 };
@@ -196,7 +204,6 @@ const loadMore = async () => {
 
   try {
     await fetchPage({ type: periodType.value, cur: cursor.value, append: true });
-
     if (hasNext.value) cursor.value = nextCursor.value;
   } catch (e) {
     console.log(e);
@@ -219,13 +226,33 @@ const openArticle = async (article) => {
   window.open(article.url, '_blank', 'noopener,noreferrer');
 };
 
+// Navi에서 period를 바꾸고 들어오는 경우도 반영
+watch(
+  () => homePeriodStore.period,
+  async (p) => {
+    if (!p) return;
+    if (periodType.value === p) return;
+
+    periodType.value = p;
+
+    // mount 이전에는 onMounted가 로딩을 하므로 중복 호출 방지
+    if (!didMount) return;
+
+    reset();
+    await loadInitial();
+  }
+);
+
 onMounted(async () => {
+  // 초기 진입 시 store 값으로 동기화 후 로딩
+  periodType.value = homePeriodStore.period || 'REALTIME';
   await loadInitial();
+  didMount = true;
 });
 </script>
 
 <style scoped>
-  /* 페이지 베이스 */
+/* 페이지 베이스 */
 main {
   padding: 16px;
 }
@@ -244,15 +271,6 @@ section[style*="display:flex"][style*="margin-bottom:12px"] {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 10px;
-  box-shadow: var(--shadow);
-}
-
-/* 상태 박스(현재 타입/cursor) */
-div[style*="justify-content:space-between"][style*="margin-bottom:12px"] {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 12px;
   box-shadow: var(--shadow);
 }
 
@@ -335,5 +353,4 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 </style>
