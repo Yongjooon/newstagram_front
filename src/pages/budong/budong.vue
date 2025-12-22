@@ -59,9 +59,6 @@
             <div style="flex:1;">
               <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <div style="font-size:12px; color:#666;">
-                  {{ a.author ? `by ${a.author}` : '' }}
-                </div>
-                <div style="font-size:12px; color:#666;">
                   {{ a.publishedAt ? formatDate(a.publishedAt) : '' }}
                 </div>
               </div>
@@ -92,19 +89,29 @@ import { ref, computed, onMounted } from 'vue';
 import BudongApi from '../../api/BudongApi';
 import LogApi from '../../api/LogApi';
 
-const LIMIT = 15;
+const LIMIT = 10;
 
+// 화면에 보여줄 목록(누적 표시)
 const articles = ref([]);
+
+// API로 받아온 전체 목록(예: 50개)
+const allArticles = ref([]);
+
+// "현재 몇 페이지까지 보여줬는지" (0이면 0~9까지 10개)
 const page = ref(0);
 
 const loading = ref(false);
 const loadingMore = ref(false);
 const errorMsg = ref('');
 
-const hasMore = ref(true);
+const hasMore = computed(() => {
+  // 다음 페이지가 존재하는지(전체 길이 기준)
+  const nextCount = (page.value + 1) * LIMIT;
+  return allArticles.value.length > nextCount;
+});
 
 const isEmpty = computed(() => {
-  return !loading.value && !errorMsg.value && articles.value.length === 0 && !hasMore.value;
+  return !loading.value && !errorMsg.value && allArticles.value.length === 0;
 });
 
 const formatDate = (iso) => {
@@ -116,22 +123,17 @@ const formatDate = (iso) => {
   }
 };
 
-const reset = () => {
-  articles.value = [];
-  page.value = 0;
-  errorMsg.value = '';
-  hasMore.value = true;
+const applyPagination = () => {
+  // 0페이지면 10개, 1페이지면 20개 ... 누적해서 보여주기
+  const end = (page.value + 1) * LIMIT;
+  articles.value = allArticles.value.slice(0, end);
 };
 
-const fetchPage = async ({ nextPage, append }) => {
-  const data = await BudongApi.getMyArticles(nextPage, LIMIT);
-  const list = Array.isArray(data) ? data : [];
-
-  if (!append) articles.value = list;
-  else articles.value = [...articles.value, ...list];
-
-  hasMore.value = list.length === LIMIT;
-  page.value = nextPage;
+const reset = () => {
+  articles.value = [];
+  allArticles.value = [];
+  page.value = 0;
+  errorMsg.value = '';
 };
 
 const loadInitial = async () => {
@@ -140,10 +142,15 @@ const loadInitial = async () => {
   reset();
 
   try {
-    await fetchPage({ nextPage: 0, append: false });
-    if (articles.value.length === 0) {
-      hasMore.value = false;
-    }
+    // API는 최초 1회만 호출(50개 수신 가정)
+    const data = await BudongApi.getMyArticles();
+    const list = Array.isArray(data) ? data : [];
+
+    allArticles.value = list;
+
+    // 첫 페이지(10개)만 노출
+    page.value = 0;
+    applyPagination();
   } catch (e) {
     console.log(e);
     errorMsg.value = '부동산 기사를 불러오는 중 오류가 발생했습니다.';
@@ -160,8 +167,9 @@ const loadMore = async () => {
   errorMsg.value = '';
 
   try {
-    const nextPage = page.value + 1;
-    await fetchPage({ nextPage, append: true });
+    // API 재호출 없이 page만 증가
+    page.value = page.value + 1;
+    applyPagination();
   } catch (e) {
     console.log(e);
     errorMsg.value = '추가 로딩 중 오류가 발생했습니다.';
@@ -191,6 +199,7 @@ onMounted(async () => {
   await loadInitial();
 });
 </script>
+
 
 <style scoped>
   main {

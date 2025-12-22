@@ -9,7 +9,7 @@ const headers = {
 export default {
     async getMyArticles(page=0, limit=15) {
         const response = await refreshToken.checkToken();
-        const { data } = await api.get(`${BASE_URL}/v1/search/preference`, {params: { page, limit }});
+        const { data } = await api.get(`${BASE_URL}/article/home-issues`);
         return data;
     },
 
