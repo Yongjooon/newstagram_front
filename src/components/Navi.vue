@@ -112,6 +112,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHomePeriodStore } from '@/stores/homePeriodStore';
 import { usePromptStore } from '@/stores/promptStore';
+import SurveyApi from '@/api/SurveyApi';
 
 const router = useRouter();
 const route = useRoute();
@@ -173,7 +174,19 @@ const goHomeWithPeriod = async (period) => {
   await router.push({ name: 'home' });
 };
 
-const goMy = () => router.push({ name: 'my' });
+const goMy = async () => {
+  try {
+    const res = await SurveyApi.getUserEmbedding();
+    if (res.data.initialized) {
+      router.push({ name: 'my' });
+    } else {
+      router.push({ name: 'Survey' });
+    }
+  } catch (error) {
+    console.error('유저 임베딩 데이터 조회 실패', error);
+    alert('오류가 발생했습니다. 다시 시도해주세요.');
+  }
+};
 
 const goPrompt = () => router.push({ name: 'prompt' });
 

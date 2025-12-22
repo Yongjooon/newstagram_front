@@ -104,11 +104,7 @@ const togglePassword = () => {
 const login = async () => {
   try {
     const res = await userStore.login(loginUser);
-    if (res.data.initialized === false) {
-      router.push({ path: "/survey" });
-    } else {
-      router.push({ name: "home" });
-    }
+    router.push({ name: "home" });
   } catch (error) {
     alert(error?.message || "로그인에 실패했습니다.");
   }

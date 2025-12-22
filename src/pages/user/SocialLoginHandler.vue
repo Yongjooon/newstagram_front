@@ -27,12 +27,7 @@
             initialized: initialized,
         };
         userStore.socialLogin(user);
-  
-        if (initialized === 'false') {
-          router.replace({ name: 'Survey' });
-        } else {
-          router.replace({ name: 'home' });
-        }
+        router.replace({ name: 'home' });
   
       } catch (error) {
         console.error('소셜 로그인 후처리 실패', error);
