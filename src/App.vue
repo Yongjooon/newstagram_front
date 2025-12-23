@@ -20,7 +20,7 @@
         class="app-nav-wrap"
         :class="{ 'is-open': isNavOpen }"
       >
-        <Navi class="app-nav" />
+        <Navi :is-open="isNavOpen" @close="closeNav" class="app-nav" />
       </aside>
 
       <div
@@ -319,6 +319,7 @@ button {
     left: 0;
     bottom: 0;
     width: 280px;
+    overflow-x: hidden;
     z-index: 100;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 
