@@ -3,7 +3,7 @@
     <div>
       <textarea
         v-model="text"
-        rows="8"
+        rows="1"
         placeholder="여기에 프롬프트를 작성하세요..."
       />
     </div>

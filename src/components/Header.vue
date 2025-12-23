@@ -1,7 +1,8 @@
+<!-- src/components/Header.vue -->
 <template>
   <header class="topbar">
     <div class="topbar__inner">
-      <!-- ✅ 모바일에서만 보이는 메뉴 버튼 -->
+      <!-- 모바일 메뉴 버튼 -->
       <button
         class="topbar__menu"
         type="button"
@@ -11,6 +12,7 @@
         ☰
       </button>
 
+      <!-- 브랜드 -->
       <button
         class="topbar__brand"
         type="button"
@@ -20,8 +22,12 @@
         Newstagram
       </button>
 
-      <div class="topbar__spacer" />
+      <!-- ✅ 프롬프트 입력창 (한 줄 중앙) -->
+      <div v-if="!hidePrompt" class="topbar__prompt-inline">
+        <WritePrompt @submit="handleSubmitPrompt" />
+      </div>
 
+      <!-- 오른쪽 액션 -->
       <div class="topbar__actions">
         <button
           class="btn-profile"
@@ -41,15 +47,24 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import UserApi from "../api/UserApi";
-import { useUserStore } from "../stores/user";
+import UserApi from "@/api/UserApi";
+import { useUserStore } from "@/stores/user";
+import WritePrompt from "@/components/WritePrompt.vue";
 
 import profileIcon from "@/assets/profile_icon.svg";
+  
+defineProps({
+  hidePrompt: { type: Boolean, default: false },
+});
 
-defineEmits(["toggle-nav"]); // ✅ 추가
+const emit = defineEmits(["toggle-nav", "submit-prompt"]);
 
 const router = useRouter();
 const userStore = useUserStore();
+
+const handleSubmitPrompt = (text) => {
+  emit("submit-prompt", text);
+};
 
 const handleLogout = async () => {
   try {
@@ -88,52 +103,26 @@ const goMypage = () => router.push({ name: "mypage" });
   padding: 0;
   cursor: pointer;
   font-weight: 900;
-  font-size: 24px;
-  letter-spacing: 0.05em;
-
-  /* 1. 그라데이션 배경 설정 (흰색 -> 포인트컬러 -> 흰색) */
-  background: linear-gradient(
-    90deg,
-    #ffffff 0%,
-    #ffffff 20%,
-    #72d6f5 50%,
-    #6c5ce7 80%,
-    #ffffff 100%
-  );
-
-  /* 2. 배경 사이즈를 가로로 길게 늘림 (애니메이션을 위해) */
-  background-size: 200% auto;
-
-  /* 3. 초기 위치 (흰색 부분이 보이도록 설정) */
-  background-position: 0% 50%;
-
-  /* 4. 배경이 글자 모양으로만 잘리도록 설정 */
-  -webkit-background-clip: text;
-  background-clip: text;
-
-  /* 5. 실제 글자 색은 투명하게 (배경이 보이도록) */
-  color: transparent;
-
-  /* 6. 위치 이동 애니메이션 */
-  transition: background-position 0.5s ease-in-out;
-}
-
-/* 마우스 올렸을 때 배경 위치 이동 */
-.topbar__brand:hover {
-  background-position: 100% 50%;
-}
-
-.topbar__spacer {
-  flex: 1;
+  letter-spacing: -0.02em;
+  font-size: 18px;
+  color: var(--text);
+  white-space: nowrap;
 }
 
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
-/* ✅ 추가: 모바일 메뉴 버튼 (기존 CSS 유지 + 최소 추가) */
+/* ✅ 프롬프트 인라인 */
+.topbar__prompt-inline {
+  flex: 1;
+  max-width: 640px;
+}
+
+/* 모바일 메뉴 버튼 */
 .topbar__menu {
   display: none;
   border: 1px solid var(--line);

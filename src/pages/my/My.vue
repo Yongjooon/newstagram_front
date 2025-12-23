@@ -1,16 +1,11 @@
 <template>
-  <main class="page-container">
-    <section class="glass-panel">
-      <header class="panel-header">
-        <div style="display: flex; gap: 8px; align-items: center; width: 100%">
-          <button
-            type="button"
-            class="action-btn"
-            @click="reset"
-            :disabled="loading || loadingMore"
-          >
-            초기화
-          </button>
+  <main style="padding: 16px">
+    <section style="display: flex; gap: 8px; margin-bottom: 12px">
+      <button type="button" @click="reload" :disabled="loading || loadingMore">
+        새로고침
+      </button>
+      <div style="flex: 1"></div>
+    </section>
 
           <div style="flex: 1"></div>
 

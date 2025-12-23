@@ -1,32 +1,17 @@
 <template>
-  <main class="home-container">
-    <section class="feed-card">
-      <header class="feed-header">
-        <div style="display: flex; gap: 8px">
-          <button
-            type="button"
-            :class="['tab-btn', { active: periodType === 'REALTIME' }]"
-            @click="changePeriod('REALTIME')"
-            :disabled="loading"
-          >
-            실시간
-          </button>
-          <button
-            type="button"
-            :class="['tab-btn', { active: periodType === 'DAILY' }]"
-            @click="changePeriod('DAILY')"
-            :disabled="loading"
-          >
-            일간
-          </button>
-          <button
-            type="button"
-            :class="['tab-btn', { active: periodType === 'WEEKLY' }]"
-            @click="changePeriod('WEEKLY')"
-            :disabled="loading"
-          >
-            주간
-          </button>
+  <main style="padding: 16px">
+    <section style="display: flex; gap: 8px; margin-bottom: 12px">
+      <div style="flex: 1"></div>
+
+      <button type="button" @click="reload" :disabled="loading">
+        새로고침
+      </button>
+    </section>
+
+    <div v-if="loading" style="padding: 12px 0">불러오는 중...</div>
+    <div v-else-if="errorMsg" style="padding: 12px 0; color: #c00">
+      {{ errorMsg }}
+    </div>
 
           <div style="flex: 1"></div>
 

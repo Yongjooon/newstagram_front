@@ -1,33 +1,40 @@
+<!-- src/App.vue -->
 <template>
   <div class="app-shell">
     <SnowCanvas />
 
     <!-- 로그인 상태 + 현재 라우트가 레이아웃 허용일 때만 노출 -->
-    <Header v-if="showLayout" @toggle-nav="toggleNav" />
+    <Header
+      v-if="showLayout"
+      @toggle-nav="toggleNav"
+      @submit-prompt="onGlobalSubmit"
+      :hide-prompt="!showGlobalPrompt"
+    />
 
-    <div v-if="showLayout" class="app-main">
-      <!-- ✅ 기존 Navi 그대로 두되, 감싸는 래퍼만 추가 -->
-      <div class="app-nav-wrap" :class="{ 'is-open': isNavOpen }">
+    <div
+      v-if="showLayout"
+      class="app-main"
+      :class="{ 'is-no-sidenav': hideSideNav }"
+    >
+      <!-- ✅ mypage에서는 좌측 네비(Admin/Navi) 자체를 숨김 -->
+      <div
+        v-if="!hideSideNav"
+        class="app-nav-wrap"
+        :class="{ 'is-open': isNavOpen }"
+      >
+        <Admin />
         <Navi class="app-nav" />
       </div>
 
-      <!-- ✅ 모바일에서만 오버레이 -->
+      <!-- ✅ 모바일 오버레이도 좌측 네비가 있을 때만 -->
       <div
-        v-if="isMobile && isNavOpen"
+        v-if="!hideSideNav && isMobile && isNavOpen"
         class="nav-backdrop"
         @click="closeNav"
         aria-hidden="true"
       />
 
       <main class="app-content" role="main">
-        <!-- ✅ Mypage에서는 전역 WritePrompt 숨김 -->
-        <section
-          v-if="showGlobalPrompt"
-          class="global-prompt card card--padded"
-        >
-          <WritePrompt @submit="onGlobalSubmit" />
-        </section>
-
         <router-view />
       </main>
     </div>
@@ -36,6 +43,9 @@
     <main v-else class="app-content app-content--solo" role="main">
       <router-view />
     </main>
+
+    <!-- ✅ Footer는 항상 맨 아래 -->
+    <Footer />
   </div>
 </template>
 
@@ -44,10 +54,10 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Navi from "@/components/Navi.vue";
-import WritePrompt from "@/components/WritePrompt.vue";
+import Admin from "@/components/Admin.vue";
+import Footer from "@/components/Footer.vue"; // ✅ 추가
 import { useUserStore } from "@/stores/user";
 import SnowCanvas from "./components/SnowCanvas.vue";
-
 import { usePromptStore } from "@/stores/promptStore";
 
 const route = useRoute();
@@ -71,14 +81,18 @@ const showLayout = computed(() => {
   return isLoggedIn.value;
 });
 
+/* ✅ mypage에서는 Navi/Admin/WritePrompt 모두 숨김 */
+const hideSideNavOnRoutes = new Set(["mypage"]);
 const hidePromptOnRoutes = new Set(["mypage", "survey"]);
+
+const routeName = computed(() => (route.name ? String(route.name) : ""));
+
+const hideSideNav = computed(() => hideSideNavOnRoutes.has(routeName.value));
 
 const showGlobalPrompt = computed(() => {
   if (!showLayout.value) return false;
   if (route.meta?.hideGlobalPrompt) return false;
-
-  const name = route.name ? String(route.name) : "";
-  return !hidePromptOnRoutes.has(name);
+  return !hidePromptOnRoutes.has(routeName.value);
 });
 
 /* (유지) 히스토리 로딩 */
@@ -105,6 +119,7 @@ function syncIsMobile() {
 
 function toggleNav() {
   if (!isMobile.value) return;
+  if (hideSideNav.value) return;
   isNavOpen.value = !isNavOpen.value;
 }
 
@@ -126,6 +141,14 @@ watch(
   () => {
     if (isMobile.value) closeNav();
   },
+);
+
+watch(
+  () => hideSideNav.value,
+  (v) => {
+    if (v) isNavOpen.value = false;
+  },
+  { immediate: true },
 );
 
 const onGlobalSubmit = async (promptText) => {
@@ -206,10 +229,6 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 24px 16px 40px;
-}
-
-.global-prompt {
-  margin-bottom: 12px;
 }
 
 .container {
@@ -357,6 +376,18 @@ button:disabled {
 
 /* ====== 여기부터 "추가"만 (기존 규칙 변경 없음) ====== */
 
+/* ✅ mypage처럼 사이드 네비를 숨길 때 1컬럼 레이아웃 */
+.app-main.is-no-sidenav {
+  grid-template-columns: 1fr;
+}
+
+/* ✅ Admin + Navi를 세로로 쌓을 때 간격 */
+.app-nav-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* ✅ 모바일에서만 Navi를 drawer로 숨김/표시 */
 @media (max-width: 900px) {
   .app-nav-wrap {
@@ -382,10 +413,5 @@ button:disabled {
     z-index: 55;
     background: rgba(0, 0, 0, 0.35);
   }
-}
-
-/* ✅ 데스크톱에서는 wrapper가 레이아웃에 자연스럽게 들어가도록 */
-.app-nav-wrap {
-  /* grid 첫 번째 컬럼에 들어가며, 별도 스타일로 기존을 깨지 않음 */
 }
 </style>

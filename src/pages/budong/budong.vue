@@ -1,8 +1,13 @@
 <template>
-  <main class="page-container">
-    <section class="glass-panel">
-      <header class="panel-header">
-        <h2 class="panel-title">부동산</h2>
+  <main style="padding: 16px">
+    <h1 style="margin: 0 0 12px; color: white">부동산</h1>
+
+    <section style="display: flex; gap: 8px; margin-bottom: 12px">
+      <button type="button" @click="reload" :disabled="loading || loadingMore">
+        새로고침
+      </button>
+      <div style="flex: 1"></div>
+    </section>
 
         <div style="flex: 1"></div>
 
