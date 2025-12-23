@@ -105,7 +105,7 @@ watch(
       promptStore.clearHistory();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 /* ✅ 모바일 네비 토글 */
@@ -140,7 +140,7 @@ watch(
   () => route.fullPath,
   () => {
     if (isMobile.value) closeNav();
-  },
+  }
 );
 
 watch(
@@ -148,7 +148,7 @@ watch(
   (v) => {
     if (v) isNavOpen.value = false;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const onGlobalSubmit = async (promptText) => {
@@ -191,17 +191,8 @@ body {
   margin: 0;
   background: radial-gradient(circle at bottom, #0a0a15, #000);
   color: var(--text);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Helvetica,
-    Arial,
-    "Apple SD Gothic Neo",
-    "Noto Sans KR",
-    "Malgun Gothic",
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     sans-serif;
   line-height: 1.45;
 }
@@ -319,9 +310,7 @@ button {
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 600;
-  transition:
-    transform 0.04s ease,
-    background 0.12s ease,
+  transition: transform 0.04s ease, background 0.12s ease,
     border-color 0.12s ease;
 }
 

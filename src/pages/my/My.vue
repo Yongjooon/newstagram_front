@@ -1,15 +1,9 @@
 <template>
-  <main style="padding: 16px">
-    <section style="display: flex; gap: 8px; margin-bottom: 12px">
-      <button type="button" @click="reload" :disabled="loading || loadingMore">
-        새로고침
-      </button>
-      <div style="flex: 1"></div>
-    </section>
-
+  <main class="page-container">
+    <section class="glass-panel">
+      <header class="panel-header">
+        <div style="display: flex; gap: 8px; align-items: center; width: 100%">
           <div style="flex: 1"></div>
-
-          <div class="page-indicator">Page {{ page }}</div>
 
           <button
             type="button"
