@@ -3,8 +3,8 @@
     <section class="glass-panel">
       <header class="panel-header">
         <div style="display: flex; gap: 8px; align-items: center; width: 100%">
+          <h2 class="desktop-label">My 추천기사</h2>
           <div style="flex: 1"></div>
-
           <button
             type="button"
             class="refresh-icon-btn"
@@ -300,8 +300,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* ✅ 1. 전체 페이지 레이아웃 (뷰포트 고정) */
 .page-container {
-  height: calc(100vh - 56px); /* 헤더 높이 제외 */
-  padding: 16px;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -314,11 +313,10 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 
   /* 투명한 어두운 배경 + 블러 (메인 페이지와 동일) */
-  background-color: rgba(30, 30, 30, 0.4);
+  background-color: rgba(30, 30, 30, 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
-  /* 얇은 유리 테두리 */
   border: 1px solid rgba(255, 255, 255, 0.1);
 
   border-radius: 24px;
@@ -331,12 +329,21 @@ onBeforeUnmount(() => {
 
 /* ✅ 3. 헤더 영역 */
 .panel-header {
-  padding: 16px 20px;
+  padding: 12px 20px;
   background: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
   display: flex;
   align-items: center;
+}
+
+.desktop-label {
+  display: block; /* 기본적으로 보임 */
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
 }
 
 /* 초기화 같은 텍스트 버튼 스타일 */

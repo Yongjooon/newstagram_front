@@ -1,152 +1,105 @@
 <template>
-  <main style="display: flex; gap: 16px; padding: 16px">
-    <section
-      style="
-        flex: 1;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 12px;
-        background: white;
-      "
-    >
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 12px;
-        "
-      >
-        <div>
-          <div style="font-size: 16px; font-weight: 600">
-            {{ currentQuery ? currentQuery : "-" }}
-          </div>
+  <main class="page-container">
+    <section class="feed-card-layout">
+      <header class="feed-header">
+        <div class="folder-tab">
+          <h2 class="desktop-label">
+            🔍 {{ currentQuery ? currentQuery : "검색 결과" }}
+          </h2>
         </div>
 
-        <div style="display: flex; gap: 8px">
+        <div class="header-right-area">
           <button
             type="button"
+            class="refresh-icon-btn"
             @click="retrySearch"
             :disabled="!currentQuery || loadingSearch || loadingMore"
+            aria-label="다시 검색"
+            title="다시 검색"
           >
-            다시 검색
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg>
           </button>
         </div>
-      </div>
+      </header>
 
-      <!-- 로딩/에러 -->
-      <div v-if="loadingSearch" style="padding: 12px 0">검색 중...</div>
-      <div v-else-if="errorMsg" style="padding: 12px 0; color: #c00">
-        {{ errorMsg }}
-      </div>
+      <div class="feed-body glass-panel-body">
+        <div v-if="loadingSearch" class="status-msg">검색 중...</div>
+        <div v-else-if="errorMsg" class="status-msg error">{{ errorMsg }}</div>
 
-      <!-- 기사 목록 -->
-      <div
-        v-if="!loadingSearch"
-        style="display: flex; flex-direction: column; gap: 12px"
-      >
-        <div v-if="!articles.length" style="color: #666">
-          검색 결과가 없습니다.
-        </div>
+        <div v-if="!loadingSearch" class="content-wrapper">
+          <div v-if="!articles.length" class="status-msg">
+            검색 결과가 없습니다.
+          </div>
 
-        <div v-else>
-          <!-- 버튼 카드 리스트 -->
-          <div style="display: flex; flex-direction: column; gap: 12px">
+          <div v-else class="article-list">
             <button
               v-for="a in articles"
               :key="a.id"
               type="button"
+              class="article-item"
               @click="openArticle(a)"
-              style="
-                text-align: left;
-                border: 1px solid #eee;
-                border-radius: 10px;
-                padding: 12px;
-                background: #fff;
-                cursor: pointer;
-              "
               :title="a.url ? '클릭하면 모달로 기사 원문을 보여줍니다.' : ''"
             >
-              <div style="display: flex; gap: 12px">
-                <!-- 썸네일 -->
-                <div style="width: 120px; flex: 0 0 120px">
+              <div style="display: flex; gap: 16px">
+                <div class="thumbnail-wrapper">
                   <img
                     v-if="a.thumbnailUrl"
                     :src="a.thumbnailUrl"
                     alt="thumbnail"
-                    style="
-                      width: 120px;
-                      height: 80px;
-                      object-fit: cover;
-                      border-radius: 6px;
-                      border: 1px solid #eee;
-                    "
+                    class="thumbnail-img"
                   />
-                  <div
-                    v-else
-                    style="
-                      width: 120px;
-                      height: 80px;
-                      border-radius: 6px;
-                      border: 1px solid #eee;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      color: #999;
-                    "
-                  >
-                    No Image
-                  </div>
+                  <div v-else class="thumbnail-placeholder">No Image</div>
                 </div>
 
-                <!-- 본문 -->
-                <div style="flex: 1">
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      gap: 12px;
-                    "
-                  >
-                    <div style="font-size: 12px; color: #666">
-                      <span v-if="a.author">by {{ a.author }}</span>
-                    </div>
-                    <div style="font-size: 12px; color: #666">
-                      <span v-if="a.publishedAt">{{
-                        formatDate(a.publishedAt)
-                      }}</span>
-                    </div>
+                <div style="flex: 1; min-width: 0; text-align: left">
+                  <div class="meta-info">
+                    <span class="date">
+                      <span v-if="a.author" style="margin-right: 6px"
+                        >by {{ a.author }}</span
+                      >
+                      {{ a.publishedAt ? formatDate(a.publishedAt) : "" }}
+                    </span>
                   </div>
 
-                  <h3 style="margin: 6px 0 8px; font-size: 16px">
+                  <h3 class="article-title">
                     {{ a.title }}
                   </h3>
 
-                  <p style="margin: 0; color: #333; line-height: 1.4">
+                  <p class="article-desc">
                     {{ a.description || a.content }}
                   </p>
                 </div>
               </div>
             </button>
-          </div>
 
-          <!-- 더 보기 -->
-          <div style="margin-top: 16px; display: flex; justify-content: center">
-            <button
-              type="button"
-              @click="loadMore"
-              :disabled="loadingMore || !hasMore"
-            >
-              {{
-                loadingMore
-                  ? "불러오는 중..."
-                  : hasMore
+            <div class="load-more-area">
+              <button
+                type="button"
+                class="btn-glass"
+                @click="loadMore"
+                :disabled="loadingMore || !hasMore"
+              >
+                {{
+                  loadingMore
+                    ? "불러오는 중..."
+                    : hasMore
                     ? "더 보기"
-                    : "더 이상 결과 없음"
-              }}
-            </button>
+                    : "마지막입니다"
+                }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -409,7 +362,7 @@ watch(
     selectedHistoryId.value = null;
     await runSearch(keyword);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 onMounted(async () => {
@@ -423,136 +376,310 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-main {
+/* ✅ 레이아웃 (공통) */
+.page-container {
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.feed-card-layout {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  margin: 0 auto;
   display: flex;
-  gap: 16px;
-  padding: 16px;
+  flex-direction: column;
+  background: transparent;
+  overflow: visible;
 }
 
-section[style*="flex:1"][style*="border:1px solid #ddd"] {
-  background: var(--panel);
-  border: 1px solid var(--line) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: var(--shadow);
+/* ✅ 헤더 영역 (폴더 탭) */
+.feed-header {
+  display: flex;
+  align-items: flex-end;
+  height: 50px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
 }
 
-/* 제목 */
-h1 {
-  font-size: 20px;
+.folder-tab {
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 100%;
+  min-width: 200px;
+  position: relative;
+  top: 1px;
+}
+
+.desktop-label {
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
-/* 기사 카드 버튼 */
-button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"] {
-  border: 1px solid var(--line) !important;
-  border-radius: var(--radius) !important;
-  background: var(--panel) !important;
-  box-shadow: var(--shadow) !important;
-  transition:
-    transform 0.04s ease,
-    background 0.12s ease,
-    border-color 0.12s ease;
+.header-right-area {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 16px;
+  padding-bottom: 8px;
 }
 
-button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:hover {
-  background: #fafafa !important;
-  border-color: #d1d5db !important;
+/* ✅ [추가] 새로고침 아이콘 버튼 */
+.refresh-icon-btn {
+  border: none;
+  background: transparent;
+  padding: 8px;
+  border-radius: 50%;
+  color: #aaa; /* 외부로 나가면서 색상 약간 밝게 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.refresh-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+.refresh-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: rotate(180deg);
+}
+.refresh-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
 }
 
-button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:active {
-  transform: translateY(1px);
+/* ✅ 본문 영역 (유리 패널) */
+.feed-body.glass-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 24px 24px 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  z-index: 4;
+}
+
+/* 스크롤바 */
+.feed-body::-webkit-scrollbar {
+  width: 6px;
+}
+.feed-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.feed-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* ✅ 기사 리스트 스타일 */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.article-item {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: 0;
+}
+.article-item:last-child {
+  border-bottom: none;
+}
+.article-item:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* 썸네일 */
-img[alt="thumbnail"] {
-  border-radius: 12px !important;
-  border: 1px solid var(--line) !important;
+.thumbnail-wrapper {
+  width: 120px;
+  flex: 0 0 120px;
+}
+.thumbnail-img {
+  width: 120px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: block;
+}
+.thumbnail-placeholder {
+  width: 120px;
+  height: 84px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
 }
 
-div[style*="No Image"] {
-  border-radius: 12px !important;
-  border: 1px solid var(--line) !important;
-  background: #fafafa !important;
+/* 텍스트 정보 */
+.meta-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.date {
+  font-size: 12px;
+  color: #888;
 }
 
-/* 본문 */
-p {
-  color: #374151 !important;
-}
-
-/* 공통 버튼 */
-button {
-  border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px 12px;
+.article-title {
+  font-size: 17px;
   font-weight: 700;
+  color: #f1f1f1;
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-desc {
+  font-size: 14px;
+  color: #b0b0b0 !important;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 더 불러오기 */
+.load-more-area {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+/* 버튼 스타일 (유리 질감) */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ccc;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-button:hover {
-  background: #fafafa;
-  border-color: #d1d5db;
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-glass:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
-/* 에러 */
-div[style*="color:#c00"] {
-  color: #b91c1c !important;
+/* 로딩/에러 */
+.status-msg {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
+.status-msg.error {
+  color: #f87171;
 }
 
-/* 반응형 */
-@media (max-width: 900px) {
-  main {
-    flex-direction: column;
-  }
-}
-
+/* 모달 */
 .article-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 12px;
+  padding: 16px;
+  backdrop-filter: blur(5px);
 }
-
 .article-modal__panel {
-  width: min(1200px, 100%);
-  height: 90vh;
+  width: min(1000px, 100%);
+  height: 85vh;
   background: #fff;
-  border-radius: 14px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
-
 .article-modal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: 14px 20px;
   border-bottom: 1px solid #eee;
   font-weight: 700;
+  color: #333;
 }
-
+.article-modal__header button {
+  border: none;
+  background: #f1f1f1;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+}
 .article-modal__iframe {
   flex: 1;
   width: 100%;
   height: 100%;
-  display: block;
   border: 0;
 }
 
-@media (max-width: 640px) {
+/* 모바일 반응형 */
+@media (max-width: 900px) {
+  .folder-tab {
+    min-width: 0;
+    border-radius: 16px 16px 0 0;
+  }
+
   .article-modal__overlay {
     padding: 0;
   }
