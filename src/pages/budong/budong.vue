@@ -298,8 +298,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* ✅ 1. 전체 페이지 레이아웃 (뷰포트 고정) */
 .page-container {
-  height: calc(100vh - 56px); /* 헤더 높이 제외 */
-  padding: 16px;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -328,7 +327,7 @@ onBeforeUnmount(() => {
 
 /* ✅ 3. 헤더 영역 */
 .panel-header {
-  padding: 16px 20px;
+  padding: 12px 20px;
   background: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
