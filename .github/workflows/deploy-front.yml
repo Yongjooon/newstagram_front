@@ -37,10 +37,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build \
-            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-            --build-arg VITE_CLOUDWATCH_DASHBOARD_URL=${{ secrets.VITE_CLOUDWATCH_DASHBOARD_URL }} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONT:latest .
+          docker build --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} --build-arg VITE_CLOUDWATCH_DASHBOARD_URL=${{ secrets.VITE_CLOUDWATCH_DASHBOARD_URL }} -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONT:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONT:latest
 
       # 4. EC2에 배포 (SSH)
