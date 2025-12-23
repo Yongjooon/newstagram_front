@@ -1,31 +1,6 @@
 <template>
   <main style="padding: 16px">
     <section style="display: flex; gap: 8px; margin-bottom: 12px">
-      <button
-        type="button"
-        :style="tabStyle('REALTIME')"
-        @click="changePeriod('REALTIME')"
-        :disabled="loading"
-      >
-        실시간 이슈
-      </button>
-      <button
-        type="button"
-        :style="tabStyle('DAILY')"
-        @click="changePeriod('DAILY')"
-        :disabled="loading"
-      >
-        일간 이슈
-      </button>
-      <button
-        type="button"
-        :style="tabStyle('WEEKLY')"
-        @click="changePeriod('WEEKLY')"
-        :disabled="loading"
-      >
-        주간 이슈
-      </button>
-
       <div style="flex: 1"></div>
 
       <button type="button" @click="reload" :disabled="loading">

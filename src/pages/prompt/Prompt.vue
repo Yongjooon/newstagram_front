@@ -19,7 +19,6 @@
         "
       >
         <div>
-          <div style="font-size: 14px; color: #666">현재 검색어</div>
           <div style="font-size: 16px; font-weight: 600">
             {{ currentQuery ? currentQuery : "-" }}
           </div>
@@ -32,13 +31,6 @@
             :disabled="!currentQuery || loadingSearch || loadingMore"
           >
             다시 검색
-          </button>
-          <button
-            type="button"
-            @click="resetArticles"
-            :disabled="loadingSearch || loadingMore"
-          >
-            결과 초기화
           </button>
         </div>
       </div>

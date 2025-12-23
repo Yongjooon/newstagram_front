@@ -6,13 +6,7 @@
       <button type="button" @click="reload" :disabled="loading || loadingMore">
         새로고침
       </button>
-      <button type="button" @click="reset" :disabled="loading || loadingMore">
-        초기화
-      </button>
       <div style="flex: 1"></div>
-      <div style="font-size: 12px; color: #666; align-self: center">
-        page: {{ page }}
-      </div>
     </section>
 
     <div v-if="loading" style="padding: 12px 0">불러오는 중...</div>
