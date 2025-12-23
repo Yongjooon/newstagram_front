@@ -5,7 +5,7 @@
         class="topbar__menu"
         type="button"
         aria-label="Open navigation"
-        @click="$emit('toggle-nav')"
+        @click="emit('toggle-nav')"
       >
         ☰
       </button>
@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"; // ref 추가
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import UserApi from "@/api/UserApi";
 import { useUserStore } from "@/stores/user";
@@ -109,7 +109,7 @@ const emit = defineEmits(["toggle-nav", "submit-prompt"]);
 const router = useRouter();
 const userStore = useUserStore();
 
-// ✅ 모바일 검색 모드 상태 관리
+// 모바일 검색 모드 상태 관리
 const isSearchMode = ref(false);
 
 const openMobileSearch = () => {
@@ -147,7 +147,7 @@ const goMypage = () => router.push({ name: "mypage" });
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(10px);
+  padding: 10px;
 }
 
 .topbar__inner {
@@ -160,7 +160,7 @@ const goMypage = () => router.push({ name: "mypage" });
   box-sizing: border-box;
 }
 
-/* 브랜드 로고 */
+/* 로고 */
 .topbar__brand {
   border: none;
   background: transparent;
@@ -173,7 +173,8 @@ const goMypage = () => router.push({ name: "mypage" });
     90deg,
     #ffffff 0%,
     #ffffff 20%,
-    #72d6f5 50%,
+    #ffffff 50%,
+    #72d6f5 70%,
     #6c5ce7 80%,
     #ffffff 100%
   );
@@ -182,7 +183,7 @@ const goMypage = () => router.push({ name: "mypage" });
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  transition: background-position 0.5s ease-in-out;
+  transition: background-position 0.1s ease-in-out;
   white-space: nowrap;
   margin-right: 12px;
 }
@@ -191,10 +192,10 @@ const goMypage = () => router.push({ name: "mypage" });
 }
 
 /* -------------------------------------------
-   ✅ 데스크탑 / 모바일 요소 제어 (Desktop first)
+  데스크탑 / 모바일 요소 제어 (Desktop first)
 ------------------------------------------- */
 
-/* 1. 데스크탑 검색창 (기본 보임) */
+/* 데스크탑 검색창 (기본 보임) */
 .topbar__prompt-desktop {
   flex: 1;
   max-width: 640px;
@@ -204,11 +205,9 @@ const goMypage = () => router.push({ name: "mypage" });
   flex: 1;
 }
 
-/* 2. 모바일 검색 트리거 버튼 (기본 숨김) */
+/* 모바일 검색 트리거 버튼 (기본 숨김) */
 .mobile-search-trigger {
   display: none; /* 데스크탑에서는 숨김 */
-
-  /* [수정] 고정 크기(width: 32px)를 없애고 패딩을 줘서 자연스럽게 키움 */
   background: transparent;
   border: none;
   cursor: pointer;
@@ -223,7 +222,7 @@ const goMypage = () => router.push({ name: "mypage" });
   height: 28px;
 }
 
-/* 3. 모바일 메뉴 버튼 (기본 숨김) */
+/* 모바일 메뉴 버튼 (기본 숨김) */
 .topbar__menu {
   display: none;
   border: 1px solid var(--line);
@@ -236,7 +235,7 @@ const goMypage = () => router.push({ name: "mypage" });
   line-height: 1;
 }
 
-/* 4. 로그아웃 버튼 (텍스트/아이콘 스위칭) */
+/* 로그아웃 버튼 (텍스트/아이콘 스위칭) */
 .btn-logout {
   background: transparent;
   border: none;
@@ -257,7 +256,6 @@ const goMypage = () => router.push({ name: "mypage" });
   font-weight: 300;
   font-size: 14px;
   white-space: nowrap;
-  transform: scaleY(1.1); /* 세로로 길쭉하게 */
 }
 .logout-icon {
   display: none;
@@ -294,10 +292,10 @@ const goMypage = () => router.push({ name: "mypage" });
 }
 
 /* -------------------------------------------
-   ✅ 모바일 검색 모드 스타일
+  모바일 검색 모드 스타일
 ------------------------------------------- */
 .topbar__inner.search-mode {
-  padding: 0 16px; /* 좌우 여백 줄임 */
+  padding: 0 16px;
   gap: 8px;
   background: rgba(0, 0, 0, 0.4); /* 모드 진입 시 배경 살짝 어둡게 */
 }
@@ -321,7 +319,7 @@ const goMypage = () => router.push({ name: "mypage" });
 }
 
 /* -------------------------------------------
-   📱 미디어 쿼리 (900px 이하 모바일)
+  미디어 쿼리 (900px 이하 모바일)
 ------------------------------------------- */
 @media (max-width: 900px) {
   .topbar__inner {
@@ -358,7 +356,7 @@ const goMypage = () => router.push({ name: "mypage" });
   /* 마진 조정 */
   .topbar__actions {
     margin-left: 0;
-    gap: 4px; /* 버튼 간격 좁힘 */
+    gap: 4px;
   }
 }
 </style>
