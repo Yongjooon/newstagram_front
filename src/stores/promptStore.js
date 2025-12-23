@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import PromptApi from '../api/PromptApi';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import PromptApi from "../api/PromptApi";
 
-const STORAGE_KEY = 'prompt.searchHistory';
+const STORAGE_KEY = "prompt.searchHistory";
 
-export const usePromptStore = defineStore('prompt', () => {
+export const usePromptStore = defineStore("prompt", () => {
   // ✅ Navi 표시용 문자열 배열 (기존 유지)
   const searchHistory = ref([]);
 
@@ -49,7 +49,12 @@ export const usePromptStore = defineStore('prompt', () => {
 
   async function loadHistory({ force = false } = {}) {
     if (loadingHistory.value) return;
-    if (!force && Array.isArray(searchHistory.value) && searchHistory.value.length > 0) return;
+    if (
+      !force &&
+      Array.isArray(searchHistory.value) &&
+      searchHistory.value.length > 0
+    )
+      return;
 
     loadingHistory.value = true;
 
@@ -67,9 +72,9 @@ export const usePromptStore = defineStore('prompt', () => {
       // 서버 필드명이 id / historyId 등 다를 수 있으니 방어적으로 처리
       const normalizedRaw = arr
         .map((x) => {
-          if (!x || typeof x !== 'object') return null;
+          if (!x || typeof x !== "object") return null;
           const id = x.id ?? x.historyId ?? x.history_id ?? x.historyID;
-          const query = x.query ?? x.keyword ?? x.q ?? '';
+          const query = x.query ?? x.keyword ?? x.q ?? "";
           if (id === undefined || id === null) return null;
           return { id, query: String(query).trim() };
         })
@@ -78,9 +83,7 @@ export const usePromptStore = defineStore('prompt', () => {
       setRaw(normalizedRaw);
 
       // ✅ Navi 표시용 문자열
-      const queries = normalizedRaw
-        .map((x) => x.query)
-        .filter(Boolean);
+      const queries = normalizedRaw.map((x) => x.query).filter(Boolean);
 
       setHistory(queries);
     } catch (e) {

@@ -1,7 +1,8 @@
+<!-- src/components/Header.vue -->
 <template>
   <header class="topbar">
     <div class="topbar__inner">
-      <!-- ✅ 모바일에서만 보이는 메뉴 버튼 -->
+      <!-- 모바일 메뉴 버튼 -->
       <button
         class="topbar__menu"
         type="button"
@@ -11,29 +12,52 @@
         ☰
       </button>
 
-      <button class="topbar__brand" type="button" @click="goHome" aria-label="Go to Home">
+      <!-- 브랜드 -->
+      <button
+        class="topbar__brand"
+        type="button"
+        @click="goHome"
+        aria-label="Go to Home"
+      >
         Newstagram
       </button>
 
-      <div class="topbar__spacer" />
+      <!-- ✅ 프롬프트 입력창 (한 줄 중앙) -->
+      <div v-if="!hidePrompt" class="topbar__prompt-inline">
+        <WritePrompt @submit="handleSubmitPrompt" />
+      </div>
 
+      <!-- 오른쪽 액션 -->
       <div class="topbar__actions">
-        <button class="btn-ghost" type="button" @click="goMypage">마이페이지</button>
-        <button class="btn-primary" type="button" @click="handleLogout">로그아웃</button>
+        <button class="btn-ghost" type="button" @click="goMypage">
+          마이페이지
+        </button>
+        <button class="btn-primary" type="button" @click="handleLogout">
+          로그아웃
+        </button>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-import UserApi from '../api/UserApi';
-import { useUserStore } from '../stores/user';
+import { useRouter } from "vue-router";
+import UserApi from "@/api/UserApi";
+import { useUserStore } from "@/stores/user";
+import WritePrompt from "@/components/WritePrompt.vue";
 
-defineEmits(['toggle-nav']); // ✅ 추가
+defineProps({
+  hidePrompt: { type: Boolean, default: false },
+});
+
+const emit = defineEmits(["toggle-nav", "submit-prompt"]);
 
 const router = useRouter();
 const userStore = useUserStore();
+
+const handleSubmitPrompt = (text) => {
+  emit("submit-prompt", text);
+};
 
 const handleLogout = async () => {
   try {
@@ -42,12 +66,12 @@ const handleLogout = async () => {
     console.log(e);
   } finally {
     userStore.logout();
-    router.push('/user');
+    router.push("/user");
   }
 };
 
-const goHome = () => router.push({ name: 'home' });
-const goMypage = () => router.push({ name: 'mypage' });
+const goHome = () => router.push({ name: "home" });
+const goMypage = () => router.push({ name: "mypage" });
 </script>
 
 <style scoped>
@@ -77,23 +101,23 @@ const goMypage = () => router.push({ name: 'mypage' });
   letter-spacing: -0.02em;
   font-size: 18px;
   color: var(--text);
-}
-
-.topbar__brand:hover {
-  text-decoration: underline;
-}
-
-.topbar__spacer {
-  flex: 1;
+  white-space: nowrap;
 }
 
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
-/* ✅ 추가: 모바일 메뉴 버튼 (기존 CSS 유지 + 최소 추가) */
+/* ✅ 프롬프트 인라인 */
+.topbar__prompt-inline {
+  flex: 1;
+  max-width: 640px;
+}
+
+/* 모바일 메뉴 버튼 */
 .topbar__menu {
   display: none;
   border: 1px solid var(--line);

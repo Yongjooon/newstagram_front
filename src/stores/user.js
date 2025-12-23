@@ -1,19 +1,19 @@
 // src/stores/user.js
-import { ref, computed } from 'vue';
-import { defineStore } from 'pinia';
+import { ref, computed } from "vue";
+import { defineStore } from "pinia";
 import UserApi from "../api/UserApi";
 
 const initState = {
-  token: '',
-  refreshToken: '',
+  token: "",
+  refreshToken: "",
   initialized: null,
   user: {
-    userId: '',
-    role: ''
-  }
+    userId: "",
+    role: "",
+  },
 };
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   const state = ref({ ...initState });
 
   const isLogin = computed(() => {
@@ -28,10 +28,10 @@ export const useUserStore = defineStore('user', () => {
 
       // 토큰이 없거나 형식이 이상하면 실패로 처리
       if (
-        typeof res?.data?.accessToken !== 'string' ||
-        !res.data.accessToken.startsWith('Bearer')
+        typeof res?.data?.accessToken !== "string" ||
+        !res.data.accessToken.startsWith("Bearer")
       ) {
-        throw new Error('아이디 혹은 비밀번호가 다릅니다.');
+        throw new Error("아이디 혹은 비밀번호가 다릅니다.");
       }
       state.value.token = res.data.accessToken;
       state.value.refreshToken = res.data.refreshToken;
@@ -39,7 +39,7 @@ export const useUserStore = defineStore('user', () => {
       state.value.user.userId = loginUser.email;
       state.value.user.role = res.data.role;
 
-      localStorage.setItem('user', JSON.stringify(state.value));
+      localStorage.setItem("user", JSON.stringify(state.value));
       return res;
     } catch (error) {
       const msg =
@@ -70,9 +70,9 @@ export const useUserStore = defineStore('user', () => {
       state.value.token = user.token;
       state.value.refreshToken = user.refreshToken;
       state.value.initialized = user.initialized;
-      state.value.user.userId = "tmp"; 
+      state.value.user.userId = "tmp";
 
-      localStorage.setItem('user', JSON.stringify(state.value));
+      localStorage.setItem("user", JSON.stringify(state.value));
 
       return true;
     } catch (error) {
@@ -82,7 +82,7 @@ export const useUserStore = defineStore('user', () => {
 
   //로그아웃: user 키만 제거 (localStorage.clear()는 다른 값까지 지움)
   const logout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     state.value = { ...initState };
   };
 
@@ -91,13 +91,13 @@ export const useUserStore = defineStore('user', () => {
 
   const setToken = (token) => {
     state.value.token = token;
-    localStorage.setItem('user', JSON.stringify(state.value));
+    localStorage.setItem("user", JSON.stringify(state.value));
   };
 
   // 로컬스토리지에서 상태 복구
   const load = () => {
     try {
-      const user = localStorage.getItem('user');
+      const user = localStorage.getItem("user");
       if (user != null) {
         const parsed = JSON.parse(user);
 
@@ -126,6 +126,6 @@ export const useUserStore = defineStore('user', () => {
     getToken,
     setToken,
     getRefreshToken,
-    load
+    load,
   };
 });

@@ -5,7 +5,8 @@
         <h1 class="page-title">관심사 설정</h1>
       </div>
       <p class="survey-description">
-        회원님께 꼭 맞는 뉴스를 추천해 드리기 위해, 관심 있는 분야를 선택해 주세요.<br>
+        회원님께 꼭 맞는 뉴스를 추천해 드리기 위해, 관심 있는 분야를 선택해
+        주세요.<br />
         이 정보는 초기 맞춤형 뉴스 피드를 구성하는 데 사용됩니다.
       </p>
 
@@ -44,9 +45,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import SurveyApi from '../../api/SurveyApi';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import SurveyApi from "../../api/SurveyApi";
 
 const router = useRouter();
 
@@ -64,10 +65,12 @@ const fetchCategories = async () => {
     if (response.success) {
       categories.value = response.data;
     } else {
-      throw new Error(response.message || '카테고리 목록을 불러오는 데 실패했습니다.');
+      throw new Error(
+        response.message || "카테고리 목록을 불러오는 데 실패했습니다.",
+      );
     }
   } catch (err) {
-    error.value = err.message || '오류가 발생했습니다. 다시 시도해 주세요.';
+    error.value = err.message || "오류가 발생했습니다. 다시 시도해 주세요.";
   } finally {
     loading.value = false;
   }
@@ -88,22 +91,24 @@ const isSelected = (id) => {
 
 const submitSurvey = async () => {
   if (selectedCategoryIds.value.length === 0) {
-    alert('최소 하나 이상의 관심사를 선택해야 합니다.');
+    alert("최소 하나 이상의 관심사를 선택해야 합니다.");
     return;
   }
 
   try {
     submitting.value = true;
     error.value = null;
-    const response = await SurveyApi.submitCategories(selectedCategoryIds.value);
+    const response = await SurveyApi.submitCategories(
+      selectedCategoryIds.value,
+    );
     if (response.success) {
-      alert('관심사 설정이 완료되었습니다.');
-      router.push({ name: 'home' });
+      alert("관심사 설정이 완료되었습니다.");
+      router.push({ name: "home" });
     } else {
-      throw new Error(response.message || '관심사 설정에 실패했습니다.');
+      throw new Error(response.message || "관심사 설정에 실패했습니다.");
     }
   } catch (err) {
-    error.value = err.message || '오류가 발생했습니다. 다시 시도해 주세요.';
+    error.value = err.message || "오류가 발생했습니다. 다시 시도해 주세요.";
   } finally {
     submitting.value = false;
   }
