@@ -27,6 +27,7 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_CLOUDWATCH_DASHBOARD_URL: ${{ secrets.VITE_CLOUDWATCH_DASHBOARD_URL}}
 
   deploy-front:
     needs: ci
