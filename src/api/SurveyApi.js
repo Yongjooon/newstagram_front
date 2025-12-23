@@ -1,6 +1,6 @@
-import api from './index';
+import api from "./index";
 
-const BASE_URL = '/api';
+const BASE_URL = "/api";
 
 export default {
   // 설문조사 카테고리 목록 조회
@@ -16,9 +16,9 @@ export default {
       { categoryIds },
       {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-      }
+      },
     );
     return data;
   },

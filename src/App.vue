@@ -21,7 +21,10 @@
 
       <main class="app-content" role="main">
         <!-- ✅ Mypage에서는 전역 WritePrompt 숨김 -->
-        <section v-if="showGlobalPrompt" class="global-prompt card card--padded">
+        <section
+          v-if="showGlobalPrompt"
+          class="global-prompt card card--padded"
+        >
           <WritePrompt @submit="onGlobalSubmit" />
         </section>
 
@@ -37,15 +40,15 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import Header from '@/components/Header.vue';
-import Navi from '@/components/Navi.vue';
-import WritePrompt from '@/components/WritePrompt.vue';
-import { useUserStore } from '@/stores/user';
-import SnowCanvas from './components/SnowCanvas.vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Header from "@/components/Header.vue";
+import Navi from "@/components/Navi.vue";
+import WritePrompt from "@/components/WritePrompt.vue";
+import { useUserStore } from "@/stores/user";
+import SnowCanvas from "./components/SnowCanvas.vue";
 
-import { usePromptStore } from '@/stores/promptStore';
+import { usePromptStore } from "@/stores/promptStore";
 
 const route = useRoute();
 const router = useRouter();
@@ -53,9 +56,12 @@ const userStore = useUserStore();
 const promptStore = usePromptStore();
 
 const isLoggedIn = computed(() => {
-  const v = (userStore.isLogin && typeof userStore.isLogin === 'object' && 'value' in userStore.isLogin)
-    ? userStore.isLogin.value
-    : userStore.isLogin;
+  const v =
+    userStore.isLogin &&
+    typeof userStore.isLogin === "object" &&
+    "value" in userStore.isLogin
+      ? userStore.isLogin.value
+      : userStore.isLogin;
 
   return Boolean(v);
 });
@@ -65,15 +71,13 @@ const showLayout = computed(() => {
   return isLoggedIn.value;
 });
 
-const hidePromptOnRoutes = new Set([
-  'mypage', 'survey'
-]);
+const hidePromptOnRoutes = new Set(["mypage", "survey"]);
 
 const showGlobalPrompt = computed(() => {
   if (!showLayout.value) return false;
   if (route.meta?.hideGlobalPrompt) return false;
 
-  const name = route.name ? String(route.name) : '';
+  const name = route.name ? String(route.name) : "";
   return !hidePromptOnRoutes.has(name);
 });
 
@@ -87,7 +91,7 @@ watch(
       promptStore.clearHistory();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 /* ✅ 모바일 네비 토글 */
@@ -95,7 +99,7 @@ const isNavOpen = ref(false);
 const isMobile = ref(false);
 
 function syncIsMobile() {
-  isMobile.value = window.matchMedia('(max-width: 900px)').matches;
+  isMobile.value = window.matchMedia("(max-width: 900px)").matches;
   if (!isMobile.value) isNavOpen.value = false;
 }
 
@@ -110,26 +114,26 @@ function closeNav() {
 
 onMounted(() => {
   syncIsMobile();
-  window.addEventListener('resize', syncIsMobile, { passive: true });
+  window.addEventListener("resize", syncIsMobile, { passive: true });
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', syncIsMobile);
+  window.removeEventListener("resize", syncIsMobile);
 });
 
 watch(
   () => route.fullPath,
   () => {
     if (isMobile.value) closeNav();
-  }
+  },
 );
 
 const onGlobalSubmit = async (promptText) => {
-  const q = (promptText || '').toString().trim();
+  const q = (promptText || "").toString().trim();
   if (!q) return;
 
   await router.push({
-    name: 'prompt',
+    name: "prompt",
     query: { q },
   });
 };
@@ -164,8 +168,18 @@ body {
   margin: 0;
   background: radial-gradient(circle at bottom, #0a0a15, #000);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo",
-    "Noto Sans KR", "Malgun Gothic", sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    "Malgun Gothic",
+    sans-serif;
   line-height: 1.45;
 }
 
@@ -286,7 +300,10 @@ button {
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+  transition:
+    transform 0.04s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 
 button:hover {

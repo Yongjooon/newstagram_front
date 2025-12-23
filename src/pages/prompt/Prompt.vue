@@ -1,92 +1,138 @@
-<!-- src/pages/prompt/Prompt.vue -->
 <template>
-  <main style="display:flex; gap:16px; padding:16px;">
-    <!-- 우측: 기사 리스트 -->
-    <section style="flex:1; border:1px solid #ddd; border-radius:8px; padding:12px; background: white;">
-      <!-- <hr style="margin:16px 0;" /> -->
-
-      <!-- 현재 검색 상태 -->
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+  <main style="display: flex; gap: 16px; padding: 16px">
+    <section
+      style="
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        background: white;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 12px;
+        "
+      >
         <div>
-          <div style="font-size:14px; color:#666;">현재 검색어</div>
-          <div style="font-size:16px; font-weight:600;">
-            {{ currentQuery ? currentQuery : '-' }}
+          <div style="font-size: 14px; color: #666">현재 검색어</div>
+          <div style="font-size: 16px; font-weight: 600">
+            {{ currentQuery ? currentQuery : "-" }}
           </div>
         </div>
 
-        <div style="display:flex; gap:8px;">
-          <button type="button" @click="retrySearch" :disabled="!currentQuery || loadingSearch || loadingMore">
+        <div style="display: flex; gap: 8px">
+          <button
+            type="button"
+            @click="retrySearch"
+            :disabled="!currentQuery || loadingSearch || loadingMore"
+          >
             다시 검색
           </button>
-          <button type="button" @click="resetArticles" :disabled="loadingSearch || loadingMore">
+          <button
+            type="button"
+            @click="resetArticles"
+            :disabled="loadingSearch || loadingMore"
+          >
             결과 초기화
           </button>
         </div>
       </div>
 
       <!-- 로딩/에러 -->
-      <div v-if="loadingSearch" style="padding:12px 0;">검색 중...</div>
-      <div v-else-if="errorMsg" style="padding:12px 0; color:#c00;">
+      <div v-if="loadingSearch" style="padding: 12px 0">검색 중...</div>
+      <div v-else-if="errorMsg" style="padding: 12px 0; color: #c00">
         {{ errorMsg }}
       </div>
 
       <!-- 기사 목록 -->
-      <div v-if="!loadingSearch" style="display:flex; flex-direction:column; gap:12px;">
-        <div v-if="!articles.length" style="color:#666;">
+      <div
+        v-if="!loadingSearch"
+        style="display: flex; flex-direction: column; gap: 12px"
+      >
+        <div v-if="!articles.length" style="color: #666">
           검색 결과가 없습니다.
         </div>
 
         <div v-else>
           <!-- 버튼 카드 리스트 -->
-          <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display: flex; flex-direction: column; gap: 12px">
             <button
               v-for="a in articles"
               :key="a.id"
               type="button"
               @click="openArticle(a)"
               style="
-                text-align:left;
-                border:1px solid #eee;
-                border-radius:10px;
-                padding:12px;
-                background:#fff;
-                cursor:pointer;
+                text-align: left;
+                border: 1px solid #eee;
+                border-radius: 10px;
+                padding: 12px;
+                background: #fff;
+                cursor: pointer;
               "
-              :title="a.url ? '클릭하면 기사 링크를 엽니다.' : ''"
+              :title="a.url ? '클릭하면 모달로 기사 원문을 보여줍니다.' : ''"
             >
-              <div style="display:flex; gap:12px;">
+              <div style="display: flex; gap: 12px">
                 <!-- 썸네일 -->
-                <div style="width:120px; flex:0 0 120px;">
+                <div style="width: 120px; flex: 0 0 120px">
                   <img
                     v-if="a.thumbnailUrl"
                     :src="a.thumbnailUrl"
                     alt="thumbnail"
-                    style="width:120px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #eee;"
+                    style="
+                      width: 120px;
+                      height: 80px;
+                      object-fit: cover;
+                      border-radius: 6px;
+                      border: 1px solid #eee;
+                    "
                   />
                   <div
                     v-else
-                    style="width:120px; height:80px; border-radius:6px; border:1px solid #eee; display:flex; align-items:center; justify-content:center; color:#999;"
+                    style="
+                      width: 120px;
+                      height: 80px;
+                      border-radius: 6px;
+                      border: 1px solid #eee;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      color: #999;
+                    "
                   >
                     No Image
                   </div>
                 </div>
 
                 <!-- 본문 -->
-                <div style="flex:1;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                    <div style="font-size:12px; color:#666;">
+                <div style="flex: 1">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <div style="font-size: 12px; color: #666">
                       <span v-if="a.author">by {{ a.author }}</span>
                     </div>
-                    <div style="font-size:12px; color:#666;">
-                      <span v-if="a.publishedAt">{{ formatDate(a.publishedAt) }}</span>
+                    <div style="font-size: 12px; color: #666">
+                      <span v-if="a.publishedAt">{{
+                        formatDate(a.publishedAt)
+                      }}</span>
                     </div>
                   </div>
 
-                  <h3 style="margin:6px 0 8px; font-size:16px;">
+                  <h3 style="margin: 6px 0 8px; font-size: 16px">
                     {{ a.title }}
                   </h3>
 
-                  <p style="margin:0; color:#333; line-height:1.4;">
+                  <p style="margin: 0; color: #333; line-height: 1.4">
                     {{ a.description || a.content }}
                   </p>
                 </div>
@@ -95,23 +141,55 @@
           </div>
 
           <!-- 더 보기 -->
-          <div style="margin-top:16px; display:flex; justify-content:center;">
-            <button type="button" @click="loadMore" :disabled="loadingMore || !hasMore">
-              {{ loadingMore ? '불러오는 중...' : (hasMore ? '더 보기' : '더 이상 결과 없음') }}
+          <div style="margin-top: 16px; display: flex; justify-content: center">
+            <button
+              type="button"
+              @click="loadMore"
+              :disabled="loadingMore || !hasMore"
+            >
+              {{
+                loadingMore
+                  ? "불러오는 중..."
+                  : hasMore
+                    ? "더 보기"
+                    : "더 이상 결과 없음"
+              }}
             </button>
           </div>
         </div>
       </div>
     </section>
+
+    <div
+      v-if="modalOpen"
+      class="article-modal__overlay"
+      @click.self="closeModal"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="article-modal__panel">
+        <header class="article-modal__header">
+          <span>기사 원문</span>
+          <button type="button" @click="closeModal">닫기</button>
+        </header>
+
+        <iframe
+          v-if="iframeUrl"
+          :src="iframeUrl"
+          class="article-modal__iframe"
+          frameborder="0"
+        />
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import PromptApi from '../../api/PromptApi';
-import LogApi from '../../api/LogApi';
-import { usePromptStore } from '../../stores/promptStore';
+import { ref, onMounted, watch, onBeforeUnmount } from "vue";
+import { useRoute } from "vue-router";
+import PromptApi from "../../api/PromptApi";
+import LogApi from "../../api/LogApi";
+import { usePromptStore } from "../../stores/promptStore";
 
 const route = useRoute();
 const promptStore = usePromptStore();
@@ -121,7 +199,7 @@ const LIMIT = 15;
 const historyList = ref([]);
 const loadingHistory = ref(false);
 
-const currentQuery = ref('');
+const currentQuery = ref("");
 const selectedHistoryId = ref(null);
 
 const articles = ref([]);
@@ -130,22 +208,64 @@ const hasMore = ref(false);
 
 const loadingSearch = ref(false);
 const loadingMore = ref(false);
-const errorMsg = ref('');
+const errorMsg = ref("");
 
-/**
- * ✅ 수정 포인트 1
- * - store의 ref를 직접 덮어쓰지 말고(setup store 깨짐)
- * - store에 raw(id/query) + searchHistory(문자열) 동기화
- */
+const JTBC_PREFIX = "https://news.jtbc.co.kr/";
+
+const modalOpen = ref(false);
+const iframeUrl = ref("");
+
+let __scrollY = 0;
+
+const lockBodyScroll = () => {
+  __scrollY = window.scrollY || 0;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${__scrollY}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
+  document.body.style.overflow = "hidden";
+};
+
+const unlockBodyScroll = () => {
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
+  document.body.style.overflow = "";
+  window.scrollTo(0, __scrollY);
+};
+
+const onKeyDown = (e) => {
+  if (!modalOpen.value) return;
+  if (e.key === "Escape") closeModal();
+};
+
+const attachKeyListener = () => window.addEventListener("keydown", onKeyDown);
+const detachKeyListener = () =>
+  window.removeEventListener("keydown", onKeyDown);
+
+const openInNewWindowWithNotice = (url) => {
+  alert("신문사 제한으로 외부창에서 기사를 띄웁니다.");
+  if (url) window.open(url, "_blank", "noopener,noreferrer");
+};
+
+const closeModal = () => {
+  modalOpen.value = false;
+  iframeUrl.value = "";
+  unlockBodyScroll();
+  detachKeyListener();
+};
+
 const syncStoreHistoryFromApi = () => {
   const rawArr = Array.isArray(historyList.value) ? historyList.value : [];
 
-  // 서버 응답이 [{id, query}] 형태라고 가정하되 방어
   const normalizedRaw = rawArr
     .map((x) => {
-      if (!x || typeof x !== 'object') return null;
+      if (!x || typeof x !== "object") return null;
       const id = x.id ?? x.historyId ?? x.history_id ?? x.historyID;
-      const query = String(x.query ?? x.keyword ?? x.q ?? '').trim();
+      const query = String(x.query ?? x.keyword ?? x.q ?? "").trim();
       if (id === undefined || id === null) return null;
       if (!query) return null;
       return { id, query };
@@ -154,16 +274,13 @@ const syncStoreHistoryFromApi = () => {
 
   const queries = normalizedRaw.map((x) => x.query);
 
-  // ✅ store가 확장되어 있다면 raw도 같이 넣어줌(삭제 기능/네비 표시)
-  if (typeof promptStore.setRaw === 'function') {
+  if (typeof promptStore.setRaw === "function") {
     promptStore.setRaw(normalizedRaw);
   }
 
-  // ✅ 문자열 히스토리는 항상 setHistory로
-  if (typeof promptStore.setHistory === 'function') {
+  if (typeof promptStore.setHistory === "function") {
     promptStore.setHistory(queries);
   } else {
-    // 예외 방어
     promptStore.searchHistory.value = queries;
   }
 };
@@ -172,7 +289,6 @@ const reloadHistory = async () => {
   loadingHistory.value = true;
   try {
     const data = await PromptApi.getPromptList();
-    // PromptApi.getPromptList()는 data를 return하므로 그대로 array인지 확인
     historyList.value = Array.isArray(data) ? data : [];
     syncStoreHistoryFromApi();
   } catch (e) {
@@ -186,11 +302,11 @@ const resetArticles = () => {
   articles.value = [];
   page.value = 0;
   hasMore.value = false;
-  errorMsg.value = '';
+  errorMsg.value = "";
 };
 
 const fetchArticles = async ({ query, nextPage, append }) => {
-  errorMsg.value = '';
+  errorMsg.value = "";
 
   const payload = {
     query,
@@ -209,7 +325,7 @@ const fetchArticles = async ({ query, nextPage, append }) => {
 };
 
 const runSearch = async (query) => {
-  const q = (query || '').trim();
+  const q = (query || "").trim();
   if (!q) return;
 
   loadingSearch.value = true;
@@ -218,24 +334,29 @@ const runSearch = async (query) => {
   try {
     currentQuery.value = q;
 
-    if (typeof promptStore.addSearch === 'function') {
+    if (typeof promptStore.addSearch === "function") {
       promptStore.addSearch(q);
     }
 
     await fetchArticles({ query: q, nextPage: 0, append: false });
 
-    // ✅ 검색 후 히스토리 최신화
     await reloadHistory();
   } catch (e) {
     console.log(e);
-    errorMsg.value = '검색 중 오류가 발생했습니다.';
+    errorMsg.value = "검색 중 오류가 발생했습니다.";
   } finally {
     loadingSearch.value = false;
   }
 };
 
 const loadMore = async () => {
-  if (!currentQuery.value || loadingSearch.value || loadingMore.value || !hasMore.value) return;
+  if (
+    !currentQuery.value ||
+    loadingSearch.value ||
+    loadingMore.value ||
+    !hasMore.value
+  )
+    return;
 
   loadingMore.value = true;
   try {
@@ -243,7 +364,7 @@ const loadMore = async () => {
     await fetchArticles({ query: currentQuery.value, nextPage, append: true });
   } catch (e) {
     console.log(e);
-    errorMsg.value = '추가 로딩 중 오류가 발생했습니다.';
+    errorMsg.value = "추가 로딩 중 오류가 발생했습니다.";
   } finally {
     loadingMore.value = false;
   }
@@ -272,26 +393,40 @@ const openArticle = async (a) => {
     console.log(e);
   }
 
-  if (!a?.url) return;
-  window.open(a.url, '_blank', 'noopener,noreferrer');
+  const url = (a?.url || "").trim();
+  if (!url) return;
+
+  if (url.startsWith(JTBC_PREFIX)) {
+    openInNewWindowWithNotice(url);
+    return;
+  }
+
+  iframeUrl.value = url;
+  modalOpen.value = true;
+  lockBodyScroll();
+  attachKeyListener();
 };
 
-// ✅ /prompt?q=... 로 들어오면 즉시 검색
 watch(
   () => route.query.q,
   async (q) => {
-    const keyword = (q || '').toString().trim();
+    const keyword = (q || "").toString().trim();
     if (!keyword) return;
     if (keyword === currentQuery.value) return;
 
     selectedHistoryId.value = null;
     await runSearch(keyword);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(async () => {
   await reloadHistory();
+});
+
+onBeforeUnmount(() => {
+  detachKeyListener();
+  if (modalOpen.value) unlockBodyScroll();
 });
 </script>
 
@@ -323,7 +458,10 @@ button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12
   border-radius: var(--radius) !important;
   background: var(--panel) !important;
   box-shadow: var(--shadow) !important;
-  transition: transform 0.04s ease, background 0.12s ease, border-color 0.12s ease;
+  transition:
+    transform 0.04s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 
 button[style*="text-align:left"][style*="border-radius:10px"][style*="padding:12px"]:hover {
@@ -381,6 +519,56 @@ div[style*="color:#c00"] {
 @media (max-width: 900px) {
   main {
     flex-direction: column;
+  }
+}
+
+.article-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 12px;
+}
+
+.article-modal__panel {
+  width: min(1200px, 100%);
+  height: 90vh;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.article-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  font-weight: 700;
+}
+
+.article-modal__iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .article-modal__overlay {
+    padding: 0;
+  }
+
+  .article-modal__panel {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
   }
 }
 </style>

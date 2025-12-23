@@ -11,26 +11,35 @@
         ☰
       </button>
 
-      <button class="topbar__brand" type="button" @click="goHome" aria-label="Go to Home">
+      <button
+        class="topbar__brand"
+        type="button"
+        @click="goHome"
+        aria-label="Go to Home"
+      >
         Newstagram
       </button>
 
       <div class="topbar__spacer" />
 
       <div class="topbar__actions">
-        <button class="btn-ghost" type="button" @click="goMypage">마이페이지</button>
-        <button class="btn-primary" type="button" @click="handleLogout">로그아웃</button>
+        <button class="btn-ghost" type="button" @click="goMypage">
+          마이페이지
+        </button>
+        <button class="btn-primary" type="button" @click="handleLogout">
+          로그아웃
+        </button>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-import UserApi from '../api/UserApi';
-import { useUserStore } from '../stores/user';
+import { useRouter } from "vue-router";
+import UserApi from "../api/UserApi";
+import { useUserStore } from "../stores/user";
 
-defineEmits(['toggle-nav']); // ✅ 추가
+defineEmits(["toggle-nav"]); // ✅ 추가
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -42,12 +51,12 @@ const handleLogout = async () => {
     console.log(e);
   } finally {
     userStore.logout();
-    router.push('/user');
+    router.push("/user");
   }
 };
 
-const goHome = () => router.push({ name: 'home' });
-const goMypage = () => router.push({ name: 'mypage' });
+const goHome = () => router.push({ name: "home" });
+const goMypage = () => router.push({ name: "mypage" });
 </script>
 
 <style scoped>

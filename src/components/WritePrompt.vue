@@ -12,9 +12,7 @@
       <button type="button" @click="onSubmit" :disabled="!text.trim()">
         전송
       </button>
-      <button type="button" @click="onClear" :disabled="!text">
-        지우기
-      </button>
+      <button type="button" @click="onClear" :disabled="!text">지우기</button>
     </div>
   </section>
 </template>

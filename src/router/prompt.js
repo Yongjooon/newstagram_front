@@ -1,7 +1,7 @@
-export default[
-    {
-        path: '/prompt',
-        name: 'prompt',
-        component:()=>import('../pages/prompt/Prompt.vue')
-    }
+export default [
+  {
+    path: "/prompt",
+    name: "prompt",
+    component: () => import("../pages/prompt/Prompt.vue"),
+  },
 ];
