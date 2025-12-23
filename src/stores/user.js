@@ -8,7 +8,8 @@ const initState = {
   refreshToken: '',
   initialized: null,
   user: {
-    userId: ''
+    userId: '',
+    role: ''
   }
 };
 
@@ -32,11 +33,11 @@ export const useUserStore = defineStore('user', () => {
       ) {
         throw new Error('아이디 혹은 비밀번호가 다릅니다.');
       }
-
       state.value.token = res.data.accessToken;
       state.value.refreshToken = res.data.refreshToken;
       state.value.initialized = res.data.initialized;
       state.value.user.userId = loginUser.email;
+      state.value.user.role = res.data.role;
 
       localStorage.setItem('user', JSON.stringify(state.value));
       return res;
