@@ -13,28 +13,13 @@ env:
   ECR_REPOSITORY_FRONT: newstagram/front
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_CLOUDWATCH_DASHBOARD_URL: ${{ secrets.VITE_CLOUDWATCH_DASHBOARD_URL}}
-
   deploy-front:
-    needs: ci
+    name: Build & Deploy to EC2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      # 1. AWS 자격 증명 설정 (GitHub Runner용)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -42,14 +27,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # 2. ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 3. 도커 이미지 빌드 및 푸시
       - name: Build and Push Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
             --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
@@ -57,22 +43,33 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONT:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONT:latest
 
+      # 4. EC2에 배포 (SSH)
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST_FRONT }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: AWS_REGION, ECR_REPOSITORY_FRONT
           script: |
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            # ECR 레지스트리 주소 (변수로 받음)
+            REGISTRY=${{ steps.login-ecr.outputs.registry }}
+            FULL_IMAGE_NAME=$REGISTRY/$ECR_REPOSITORY_FRONT:latest
+
+            echo "Logging into ECR..."
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY
             
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONT }}:latest
+            echo "Pulling latest image..."
+            docker pull $FULL_IMAGE_NAME
             
+            echo "Stopping old container..."
             docker stop newstagram-front || true
             docker rm newstagram-front || true
             
+            echo "Running new container..."
             docker run -d --name newstagram-front \
               -p 80:80 \
-              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONT }}:latest
+              $FULL_IMAGE_NAME
             
+            echo "Cleaning up..."
             docker image prune -f
