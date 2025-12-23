@@ -1,257 +1,258 @@
-<!-- src/pages/user/Signup.vue -->
 <template>
-  <div class="page">
-    <div class="signup-card">
-      <div class="card-head">
-        <h1 class="title">회원가입</h1>
-        <p class="subtitle">Newstagram에 오신 것을 환영합니다!</p>
-      </div>
-
-      <div class="signup-form">
-        <!-- 휴대폰 -->
-        <div class="input-group">
-          <label class="input-label">휴대폰 번호</label>
-          <div class="input-row">
-            <input
-              v-model="form.phoneNumber"
-              type="text"
-              placeholder="01012345678"
-              @blur="onBlurPhone"
-              class="custom-input flex-grow"
-              :disabled="verifyOk"
-            />
-            <button
-              type="button"
-              class="btn-outline"
-              @click="onClickRequestCode"
-              :disabled="!canRequestCode || verifyOk"
-            >
-              {{ verifyOk ? "인증완료" : "인증번호 받기" }}
-            </button>
+  <main class="page-container">
+    <section class="feed-card-layout">
+      <div class="feed-body glass-panel-body">
+        <div class="signup-content-wrapper">
+          <div class="card-head">
+            <p class="title">Newstagram에 오신 것을 환영합니다.</p>
+            <div class="card-footer">
+              <span>이미 가입한 계정이 있으신가요?</span>
+              <button
+                type="button"
+                class="link-btn"
+                @click="goLogin"
+                :disabled="loading.signup"
+              >
+                로그인으로
+              </button>
+            </div>
           </div>
 
-          <div class="validation-msg" :style="{ color: phoneMsgColor }">
-            <span>{{ phoneMsg }}</span>
-            <svg
-              v-if="availability.phone === true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="#28a745"
-              class="success-icon"
-            >
-              <path
-                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-              />
-            </svg>
-          </div>
+          <div class="signup-form">
+            <div class="input-group">
+              <label class="label">휴대폰 번호</label>
+              <div class="input-row">
+                <input
+                  v-model="form.phoneNumber"
+                  type="text"
+                  placeholder="01012345678"
+                  @blur="onBlurPhone"
+                  class="input-dark flex-grow"
+                  :disabled="verifyOk"
+                />
+                <button
+                  type="button"
+                  class="btn-glass"
+                  @click="onClickRequestCode"
+                  :disabled="!canRequestCode || verifyOk"
+                >
+                  {{ verifyOk ? "인증완료" : "인증번호 받기" }}
+                </button>
+              </div>
 
-          <!-- 인증 코드 영역 -->
-          <div v-if="showCodeArea && !verifyOk" class="verification-box">
-            <!-- 개발용 -->
-            <!-- <div class="verification-box">  -->
-            <!--  -->
-            <div class="input-row">
+              <div class="validation-msg" :style="{ color: phoneMsgColor }">
+                <span>{{ phoneMsg }}</span>
+                <svg
+                  v-if="availability.phone === true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="#4ade80"
+                  class="success-icon"
+                >
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                  />
+                </svg>
+              </div>
+
+              <transition name="slide-fade">
+                <div v-if="showCodeArea && !verifyOk" class="verification-box">
+                  <div class="input-row">
+                    <input
+                      v-model="verificationCode"
+                      type="text"
+                      placeholder="인증번호 6자리"
+                      class="input-dark flex-grow"
+                      maxlength="6"
+                      inputmode="numeric"
+                      @input="onlyNumbers"
+                    />
+                    <button
+                      type="button"
+                      class="btn-glass primary"
+                      @click="onClickVerifyCode"
+                      :disabled="!canVerifyCode"
+                    >
+                      확인
+                    </button>
+                  </div>
+
+                  <div
+                    class="validation-msg"
+                    :style="{ color: verifyMsgColor }"
+                  >
+                    {{ verifyMsg }}
+                  </div>
+
+                  <div class="info-text-box">
+                    <p>
+                      인증번호를 발송했습니다. (유효시간 5분)<br />
+                      인증번호가 오지 않으면 입력 정보를 확인해주세요.<br />
+                      가상전화번호는 인증번호를 받을 수 없습니다.
+                    </p>
+                    <button
+                      type="button"
+                      class="resend-link"
+                      @click="onClickResendCode"
+                      :disabled="loading.requestCode"
+                    >
+                      코드 재전송
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </div>
+
+            <div class="input-group">
+              <label class="label">이메일</label>
               <input
-                v-model="verificationCode"
+                v-model="form.email"
+                type="email"
+                placeholder="test@example.com"
+                @blur="onBlurEmail"
+                class="input-dark"
+                autocomplete="email"
+              />
+              <div class="validation-msg" :style="{ color: emailMsgColor }">
+                <span>{{ emailMsg }}</span>
+                <svg
+                  v-if="availability.email === true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="#4ade80"
+                  class="success-icon"
+                >
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="label">닉네임</label>
+              <input
+                v-model="form.nickname"
                 type="text"
-                placeholder="인증번호 6자리"
-                class="custom-input flex-grow"
-                maxlength="6"
-                inputmode="numeric"
-                @input="onlyNumbers"
+                placeholder="닉네임 입력"
+                @blur="onBlurNickname"
+                class="input-dark"
               />
-
-              <button
-                type="button"
-                class="btn-outline"
-                @click="onClickVerifyCode"
-                :disabled="!canVerifyCode"
-              >
-                확인
-              </button>
+              <div class="validation-msg" :style="{ color: nicknameMsgColor }">
+                <span>{{ nicknameMsg }}</span>
+                <svg
+                  v-if="availability.nickname === true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="#4ade80"
+                  class="success-icon"
+                >
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                  />
+                </svg>
+              </div>
             </div>
-            <div class="validation-msg" :style="{ color: verifyMsgColor }">
-              {{ verifyMsg }}
+
+            <div class="input-group">
+              <label class="label">비밀번호</label>
+              <div class="password-wrapper">
+                <input
+                  v-model="form.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                  class="input-dark"
+                  autocomplete="new-password"
+                  @blur="onBlurPassword"
+                  @input="onBlurPassword"
+                />
+                <button
+                  type="button"
+                  class="toggle-pwd-btn"
+                  @click="togglePassword"
+                  tabindex="-1"
+                >
+                  <svg
+                    v-if="showPassword"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    ></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="validation-msg" :style="{ color: passwordMsgColor }">
+                <span>{{ passwordMsg }}</span>
+                <svg
+                  v-if="availability.password === true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="#4ade80"
+                  class="success-icon"
+                >
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                  />
+                </svg>
+              </div>
             </div>
-            <div class="info-text-box">
-              <p>
-                인증번호를 발송했습니다. (유효시간 5분)<br />
-                인증번호가 오지 않으면 입력하신 정보가 정확한지 확인하여
-                주세요.<br />
-                가상전화번호는 인증번호를 받을 수 없습니다.
-              </p>
-              <button
-                type="button"
-                class="resend-link"
-                @click="onClickResendCode"
-                :disabled="loading.requestCode"
-              >
-                코드 재전송
-              </button>
-            </div>
           </div>
-        </div>
 
-        <!-- 이메일 -->
-        <div class="input-group">
-          <label class="input-label">이메일</label>
-          <input
-            v-model="form.email"
-            type="email"
-            placeholder="test@example.com"
-            @blur="onBlurEmail"
-            class="custom-input"
-            autocomplete="email"
-          />
-          <div class="validation-msg" :style="{ color: emailMsgColor }">
-            <span>{{ emailMsg }}</span>
-            <svg
-              v-if="availability.email === true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="#28a745"
-              class="success-icon"
-            >
-              <path
-                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-              />
-            </svg>
-          </div>
-        </div>
+          <button
+            type="button"
+            class="btn-glass primary full-width margin-top-large"
+            @click="onClickSignup"
+            :disabled="!canSignup"
+          >
+            회원가입
+          </button>
 
-        <!-- 닉네임 -->
-        <div class="input-group">
-          <label class="input-label">닉네임</label>
-          <input
-            v-model="form.nickname"
-            type="text"
-            placeholder="닉네임예시"
-            @blur="onBlurNickname"
-            class="custom-input"
-          />
-          <div class="validation-msg" :style="{ color: nicknameMsgColor }">
-            <span>{{ nicknameMsg }}</span>
-            <svg
-              v-if="availability.nickname === true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="#28a745"
-              class="success-icon"
-            >
-              <path
-                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-              />
-            </svg>
-          </div>
-        </div>
-
-        <!-- 비밀번호 -->
-        <div class="input-group">
-          <label class="input-label">비밀번호</label>
-          <div class="input-wrapper">
-            <input
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="password1234"
-              class="custom-input"
-              autocomplete="current-password"
-              @blur="onBlurPassword"
-              @input="onBlurPassword"
-            />
-            <button
-              type="button"
-              class="toggle-pwd-btn"
-              @click="togglePassword"
-            >
-              <svg
-                v-if="showPassword"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                ></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-            </button>
-          </div>
-          <div class="validation-msg" :style="{ color: passwordMsgColor }">
-            <span>{{ passwordMsg }}</span>
-            <svg
-              v-if="availability.password === true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="#28a745"
-              class="success-icon"
-            >
-              <path
-                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-              />
-            </svg>
+          <div
+            v-if="signupMsg"
+            class="msg-box"
+            :style="{ color: signupMsgColor }"
+          >
+            {{ signupMsg }}
           </div>
         </div>
       </div>
-      <!-- 회원가입 -->
-      <button
-        type="button"
-        class="btn-signup"
-        @click="onClickSignup"
-        :disabled="!canSignup"
-      >
-        회원가입
-      </button>
-
-      <div class="card-footer">
-        <span>이미 가입한 계정이 있으신가요?</span>
-        <button
-          type="button"
-          class="link-btn"
-          @click="goLogin"
-          :disabled="loading.signup"
-        >
-          로그인으로
-        </button>
-      </div>
-
-      <div
-        v-if="signupMsg"
-        style="margin-top: 10px; font-size: 12px"
-        :style="{ color: signupMsgColor }"
-      >
-        {{ signupMsg }}
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
@@ -288,25 +289,25 @@ const passwordMsg = ref("");
 const verifyMsg = ref("");
 const signupMsg = ref("");
 
-// 색상
+// 색상 (다크 모드에 맞춰 밝기 조정: 성공 #4ade80, 실패 #f87171, 기본 #9ca3af)
 const phoneMsgColor = computed(() =>
-  availability.value.phone === false ? "#c00" : "#333",
+  availability.value.phone === false ? "#f87171" : "#4ade80"
 );
 const emailMsgColor = computed(() =>
-  availability.value.email === false ? "#c00" : "#333",
+  availability.value.email === false ? "#f87171" : "#4ade80"
 );
 const nicknameMsgColor = computed(() =>
-  availability.value.nickname === false ? "#c00" : "#333",
+  availability.value.nickname === false ? "#f87171" : "#4ade80"
 );
 const passwordMsgColor = computed(() =>
-  availability.value.password === false ? "#c00" : "#333",
+  availability.value.password === false ? "#f87171" : "#4ade80"
 );
 
 const verifyOk = ref(false);
-const verifyMsgColor = computed(() => (verifyOk.value ? "#333" : "#c00"));
+const verifyMsgColor = computed(() => (verifyOk.value ? "#4ade80" : "#f87171"));
 
 const signupOk = ref(false);
-const signupMsgColor = computed(() => (signupOk.value ? "#333" : "#c00"));
+const signupMsgColor = computed(() => (signupOk.value ? "#4ade80" : "#f87171"));
 
 // 인증 관련
 const showCodeArea = ref(false);
@@ -462,7 +463,6 @@ const onBlurPassword = () => {
   if (hasDigit) count++;
   if (hasSpecial) count++;
 
-  // 2가지 이상 조합 확인
   if (count >= 2) {
     if (pw.length < 8) {
       availability.value.password = false;
@@ -585,6 +585,7 @@ const onClickSignup = async () => {
 
     signupOk.value = true;
     signupMsg.value = "회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.";
+    alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
     router.push("/user");
   } catch (e) {
     console.log(e);
@@ -600,69 +601,127 @@ const goLogin = () => {
 };
 
 const onlyNumbers = (event) => {
-  // 입력된 값에서 숫자가 아닌 것(0-9가 아닌 것)을 모두 빈 문자열로 치환
   const val = event.target.value.replace(/[^0-9]/g, "");
   verificationCode.value = val;
 };
 </script>
 
 <style scoped>
-.signup-card {
-  width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  text-align: center;
+.page-container {
+  height: fit-content;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-top: 10px;
 }
 
-/* Header */
-.card-header {
-  margin-bottom: 32px;
+.feed-card-layout {
+  width: 100%;
+  height: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  overflow: visible;
+}
+
+.feed-header {
+  display: flex;
+  align-items: flex-end;
+  height: 50px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.folder-tab {
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 100%;
+  min-width: 160px;
+  position: relative;
+  top: 1px;
+}
+
+.desktop-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.header-right-area {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 16px;
+  padding-bottom: 8px;
+}
+
+.feed-body.glass-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  z-index: 4;
+}
+
+.signup-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-head {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 15px;
-  color: #666;
-  line-height: 1.5;
+  color: #9ca3af;
+  margin: 0;
 }
 
-/* Form Layout */
+/* 폼 스타일 */
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-/* Inputs  */
 .input-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 라벨 왼쪽 정렬 강제 */
-  width: 100%;
+  gap: 8px;
 }
 
-.input-label {
-  font-size: 13px;
+.label {
+  color: #e5e7eb;
+  font-size: 14px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 8px; /* 인풋과의 간격 */
-  margin-left: 2px;
-}
-
-.input-wrapper {
-  position: relative;
-  width: 100%;
+  margin-left: 4px;
 }
 
 .input-row {
@@ -671,65 +730,70 @@ const onlyNumbers = (event) => {
   gap: 8px;
 }
 
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .flex-grow {
   flex: 1;
-  width: auto; /* width 100% 해제 */
 }
 
-.custom-input {
+.input-dark {
   width: 100%;
-  height: 52px;
-  padding: 0 16px;
-  border: 1px solid #e0e0e0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 14px 16px;
   border-radius: 12px;
-  font-size: 15px;
-  color: #111;
-  background-color: #fff;
-  transition: all 0.2s ease;
   outline: none;
+  font-size: 15px;
+  transition: all 0.2s;
 }
 
-.custom-input::placeholder {
-  color: #ccc;
+.input-dark:focus {
+  border-color: #72d6f5;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
 }
 
-.custom-input:focus {
-  border-color: #111;
-  box-shadow: 0 0 0 1px #111;
-}
-
-.custom-input:disabled {
-  background-color: #f5f5f5;
-  color: #999;
+.input-dark:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: #6b7280;
   cursor: not-allowed;
-  border-color: #eee;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.pwd-input {
-  padding-right: 60px;
-}
-
-.toggle-pwd-btn {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
+/* 유효성 메시지 */
+.validation-msg {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
-  font-weight: 500;
-  color: #888;
-  cursor: default;
+  min-height: 20px;
 }
 
-.toggle-pwd-btn:hover {
-  color: #111;
+.success-icon {
+  flex-shrink: 0;
+}
+
+/* 인증 박스 (내부) */
+.verification-box {
+  background: rgba(114, 214, 245, 0.05);
+  border: 1px dashed rgba(114, 214, 245, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .info-text-box {
-  margin-top: 16px;
-  text-align: left; /* 강제 좌측 정렬 */
-  border-top: 1px solid #eee; /* 구분선 추가 */
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 12px;
   display: flex;
   flex-direction: column;
@@ -738,8 +802,8 @@ const onlyNumbers = (event) => {
 
 .info-text-box p {
   font-size: 12px;
-  color: #888;
-  line-height: 1.6; /* 줄간격 확보 */
+  color: #9ca3af;
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -748,103 +812,142 @@ const onlyNumbers = (event) => {
   border: none;
   padding: 0;
   font-size: 12px;
-  color: #111;
+  color: #72d6f5;
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
-  align-self: flex-start; /* 왼쪽 정렬 */
+  align-self: flex-start;
   margin-top: 4px;
 }
-
-/* Validation Message */
-.validation-msg {
-  width: 100%;
-  /* 오른쪽 정렬을 위해 flex-end 사용 */
-  display: flex;
-  justify-content: flex-end;
-  align-items: center; /* 수직 중앙 정렬 */
-  gap: 4px; /* 텍스트와 아이콘 사이 간격 */
-
-  font-size: 12px;
-  margin-top: 6px;
-  font-weight: 500;
-  min-height: 16px; /* 아이콘 크기 고려하여 약간 키움 */
+.resend-link:hover {
+  color: #fff;
 }
-.validation-msg.center {
+
+/* 버튼 스타일 (유리 질감) */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ccc;
+  padding: 0 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+  height: 48px;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
-.success-icon {
-  flex-shrink: 0; /* 아이콘이 찌그러지지 않게 */
-}
 
-/* Verification Code Area */
-.verification-box {
-  width: 100%;
-  margin-top: 12px;
-  background-color: #fafafa;
-  border: 1px solid #eeeeee;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.verify-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-/* Buttons */
-.btn-signup {
-  background: #111827;
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  border-color: #111827;
-  height: 48px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 40px;
-  margin-bottom: 20px;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-.btn-outline {
-  height: 52px;
-  padding: 0 16px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  color: #111;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap; /* 줄바꿈 방지 */
-  flex-shrink: 0; /* 버튼이 찌그러지지 않게 */
-  transition: all 0.2s;
+.btn-glass.primary {
+  background: rgba(114, 214, 245, 0.15);
+  border-color: rgba(114, 214, 245, 0.4);
+  color: #72d6f5;
 }
 
-.btn-outline:disabled {
-  background-color: #f5f5f5;
-  color: #ccc;
-  border-color: #eee;
+.btn-glass.primary:hover:not(:disabled) {
+  background: rgba(114, 214, 245, 0.3);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(114, 214, 245, 0.2);
+}
+
+.btn-glass:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Footer */
+.btn-glass.small {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.margin-top-large {
+  margin-top: 20px;
+}
+
+/* 비밀번호 토글 */
+.toggle-pwd-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+.toggle-pwd-btn:hover {
+  color: #fff;
+}
+
+/* 하단 링크 */
 .card-footer {
+  margin-top: 20px;
+  text-align: center;
   font-size: 14px;
-  color: #666;
+  color: #9ca3af;
 }
 
 .link-btn {
-  background: none;
+  background: transparent;
   border: none;
-  padding: 0;
+  color: #72d6f5;
   font-weight: 700;
-  color: #111;
   cursor: pointer;
   margin-left: 4px;
+  padding: 4px;
 }
-
 .link-btn:hover {
   text-decoration: underline;
+  color: #fff;
+}
+
+.msg-box {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* 애니메이션 */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 12px;
+  }
+
+  .feed-body.glass-panel-body {
+    padding: 24px;
+  }
+
+  .folder-tab {
+    min-width: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+  }
 }
 </style>
