@@ -1,135 +1,172 @@
-<!-- src/pages/mypage/Mypage.vue -->
 <template>
-  <main class="mypage">
-    <!-- 로딩/에러 -->
-    <div v-if="loadingInfo" class="state">불러오는 중...</div>
-    <div v-else-if="infoError" class="state state--error">
-      {{ infoError }}
-    </div>
+  <main class="page-container">
+    <section class="feed-card-layout">
+      <header class="feed-header">
+        <div class="folder-tab">
+          <h2 class="desktop-label">👤 회원정보 관리</h2>
+        </div>
+      </header>
 
-    <!-- 내 정보 -->
-    <section v-if="!loadingInfo && myInfo" class="card">
-      <h2 class="card__title">회원정보</h2>
-
-      <div class="info">
-        <div class="info__row">
-          <div class="info__label">이메일</div>
-          <div class="info__value">
-            <span>{{ myInfo.email ?? "-" }}</span>
-
-            <!-- ✅ ADMIN 뱃지 -->
-            <span v-if="isAdmin" class="badge-admin">ADMIN</span>
-          </div>
+      <div class="feed-body glass-panel-body">
+        <div v-if="loadingInfo" class="status-msg">
+          회원정보를 불러오는 중...
+        </div>
+        <div v-else-if="infoError" class="status-msg error">
+          {{ infoError }}
         </div>
 
-        <div class="info__row">
-          <div class="info__label">닉네임</div>
-          <div class="info__value">
-            <!-- 보기 모드 -->
-            <span v-if="!editingNickname">{{ myInfo.nickname ?? "-" }}</span>
+        <div v-else-if="myInfo" class="content-wrapper">
+          <section class="info-section">
+            <h3 class="section-title">기본 정보</h3>
 
-            <!-- ✅ 수정 모드 -->
-            <input
-              v-else
-              v-model="newNickname"
-              type="text"
-              placeholder="새 닉네임"
-              @blur="onBlurNickname"
-              class="input"
-            />
-          </div>
-        </div>
-      </div>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">이메일</span>
+                <div class="value-wrapper">
+                  <span class="value-text">{{ myInfo.email ?? "-" }}</span>
+                  <span v-if="isAdmin" class="badge-admin">ADMIN</span>
+                </div>
+              </div>
 
-      <!-- 액션 버튼 -->
-      <div class="actions">
-        <!-- 닉네임 수정 -->
-        <button
-          v-if="!editingNickname"
-          type="button"
-          @click="startEditNickname"
-        >
-          닉네임 수정
-        </button>
+              <div class="info-item">
+                <span class="label">닉네임</span>
+                <div class="value-wrapper">
+                  <span v-if="!editingNickname" class="value-text highlight">
+                    {{ myInfo.nickname ?? "-" }}
+                  </span>
 
-        <template v-else>
-          <button
-            type="button"
-            class="btn-primary"
-            @click="onChangeNickname"
-            :disabled="!canChangeNickname"
-          >
-            저장
-          </button>
-          <button type="button" @click="cancelEditNickname" :disabled="loadingNickname">
-            취소
-          </button>
-        </template>
+                  <div v-else class="edit-mode-group">
+                    <input
+                      v-model="newNickname"
+                      type="text"
+                      placeholder="새 닉네임"
+                      @blur="onBlurNickname"
+                      class="input-dark"
+                    />
+                  </div>
+                </div>
+              </div>
 
-        <!-- 비밀번호 변경 -->
-        <button
-          type="button"
-          class="btn-ghost"
-          @click="togglePasswordPanel"
-        >
-          {{ showPasswordPanel ? "비밀번호 변경 닫기" : "비밀번호 변경" }}
-        </button>
+              <div v-if="editingNickname || nicknameMsg" class="msg-row">
+                <span class="spacer"></span>
+                <div class="msg-content">
+                  <p
+                    v-if="editingNickname"
+                    class="hint-text"
+                    :style="{ color: nicknameCheckMsgColor }"
+                  >
+                    {{ nicknameCheckMsg }}
+                  </p>
+                  <p
+                    v-if="nicknameMsg"
+                    class="hint-text"
+                    :style="{ color: nicknameMsgColor }"
+                  >
+                    {{ nicknameMsg }}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-      </div>
+            <div class="action-row">
+              <button
+                v-if="!editingNickname"
+                type="button"
+                class="btn-glass"
+                @click="startEditNickname"
+              >
+                닉네임 수정
+              </button>
 
-      <!-- 닉네임 상태 메시지 -->
-      <div v-if="editingNickname" class="hint" :style="{ color: nicknameCheckMsgColor }">
-        {{ nicknameCheckMsg }}
-      </div>
-      <div v-if="nicknameMsg" class="hint" :style="{ color: nicknameMsgColor }">
-        {{ nicknameMsg }}
-      </div>
-    </section>
+              <template v-else>
+                <button
+                  type="button"
+                  class="btn-glass primary"
+                  @click="onChangeNickname"
+                  :disabled="!canChangeNickname"
+                >
+                  저장
+                </button>
+                <button
+                  type="button"
+                  class="btn-glass"
+                  @click="cancelEditNickname"
+                  :disabled="loadingNickname"
+                >
+                  취소
+                </button>
+              </template>
+            </div>
+          </section>
 
-    <!-- ✅ 비밀번호 변경 패널 (버튼 눌렀을 때만) -->
-    <section v-if="!loadingInfo && myInfo && showPasswordPanel" class="card">
-      <h2 class="card__title">비밀번호 변경</h2>
+          <hr class="divider" />
 
-      <div class="form">
-        <div class="field">
-          <label>현재 비밀번호</label>
-          <input
-            v-model="currentPassword"
-            type="password"
-            placeholder="현재 비밀번호"
-            class="input"
-          />
-        </div>
+          <section class="info-section">
+            <div class="section-header">
+              <h3 class="section-title">보안 설정</h3>
+              <button
+                type="button"
+                class="btn-glass small"
+                @click="togglePasswordPanel"
+              >
+                {{ showPasswordPanel ? "닫기" : "비밀번호 변경" }}
+              </button>
+            </div>
 
-        <div class="field">
-          <label>새 비밀번호</label>
-          <input
-            v-model="newPassword"
-            type="password"
-            placeholder="새 비밀번호"
-            class="input"
-          />
-          <div class="hint" :style="{ color: passwordRuleColor }">
-            {{ passwordRuleMsg }}
-          </div>
-        </div>
+            <transition name="slide-fade">
+              <div v-if="showPasswordPanel" class="password-panel">
+                <div class="input-group">
+                  <label>현재 비밀번호</label>
+                  <input
+                    v-model="currentPassword"
+                    type="password"
+                    placeholder="현재 사용 중인 비밀번호"
+                    class="input-dark"
+                  />
+                </div>
 
-        <div class="actions">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="onChangePassword"
-            :disabled="!canChangePassword"
-          >
-            비밀번호 변경
-          </button>
-          <button type="button" @click="clearPwInputs" :disabled="loadingPw">
-            입력 초기화
-          </button>
-        </div>
+                <div class="input-group">
+                  <label>새 비밀번호</label>
+                  <input
+                    v-model="newPassword"
+                    type="password"
+                    placeholder="8자 이상 (영문/숫자/특수문자)"
+                    class="input-dark"
+                  />
+                  <p class="hint-text" :style="{ color: passwordRuleColor }">
+                    {{ passwordRuleMsg }}
+                  </p>
+                </div>
 
-        <div v-if="pwMsg" class="hint" :style="{ color: pwMsgColor }">
-          {{ pwMsg }}
+                <div class="action-row left-align">
+                  <button
+                    type="button"
+                    class="btn-glass primary"
+                    @click="onChangePassword"
+                    :disabled="!canChangePassword"
+                  >
+                    변경하기
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-glass"
+                    @click="clearPwInputs"
+                    :disabled="loadingPw"
+                  >
+                    초기화
+                  </button>
+                </div>
+
+                <p
+                  v-if="pwMsg"
+                  class="hint-text main-msg"
+                  :style="{ color: pwMsgColor }"
+                >
+                  {{ pwMsg }}
+                </p>
+              </div>
+            </transition>
+          </section>
         </div>
       </div>
     </section>
@@ -142,14 +179,11 @@ import MypageApi from "../../api/MypageApi";
 import UserApi from "../../api/UserApi";
 
 const myInfo = ref(null);
-
 const loadingInfo = ref(false);
 const infoError = ref("");
 
-// ✅ 닉네임 편집 모드 토글
+// 닉네임 관련 상태
 const editingNickname = ref(false);
-
-// 닉네임 변경/중복체크
 const newNickname = ref("");
 const loadingNickname = ref(false);
 const nicknameOk = ref(false);
@@ -159,35 +193,29 @@ const nicknameAvailable = ref(null);
 const loadingNicknameCheck = ref(false);
 const nicknameCheckMsg = ref("");
 const nicknameCheckMsgColor = computed(() => {
-  if (nicknameAvailable.value === true) return "#333";
-  if (nicknameAvailable.value === false) return "#c00";
-  return "#666";
+  if (nicknameAvailable.value === true) return "#4ade80"; // Green
+  if (nicknameAvailable.value === false) return "#f87171"; // Red
+  return "#9ca3af"; // Gray
 });
-const nicknameMsgColor = computed(() => (nicknameOk.value ? "#333" : "#c00"));
+const nicknameMsgColor = computed(() =>
+  nicknameOk.value ? "#4ade80" : "#f87171"
+);
 
-// ✅ 비밀번호 패널 토글
+// 비밀번호 관련 상태
 const showPasswordPanel = ref(false);
-
-// 비밀번호 변경
 const currentPassword = ref("");
 const newPassword = ref("");
 const loadingPw = ref(false);
 const pwOk = ref(false);
 const pwMsg = ref("");
-const pwMsgColor = computed(() => (pwOk.value ? "#333" : "#c00"));
+const pwMsgColor = computed(() => (pwOk.value ? "#4ade80" : "#f87171"));
 
 const getAvailable = (res) => {
-  // res = { success, code, message, data: { available }, error }
   if (res?.success !== true) return undefined;
   return res?.data?.available;
 };
 
-const renderRole = (role) => {
-  if (!role) return "-";
-  return String(role);
-};
-
-// ✅ ADMIN 뱃지 조건
+// ADMIN 뱃지
 const isAdmin = computed(() => {
   const role = myInfo.value?.role ?? "";
   return String(role).toUpperCase() === "ADMIN";
@@ -201,33 +229,28 @@ const reloadInfo = async () => {
     const data = await MypageApi.getMyInfo();
     myInfo.value = data?.data ? data.data : data;
 
-    // 초기 닉네임 세팅
     if (myInfo.value?.nickname) {
       newNickname.value = myInfo.value.nickname;
     }
 
-    // 상태 초기화
     nicknameAvailable.value = null;
     nicknameCheckMsg.value = "";
     nicknameMsg.value = "";
     nicknameOk.value = false;
   } catch (e) {
     console.log(e);
-    infoError.value =
-      "회원정보 조회 중 오류가 발생했습니다. (로그인 상태를 확인하세요.)";
+    infoError.value = "회원정보 조회 중 오류가 발생했습니다.";
     myInfo.value = null;
   } finally {
     loadingInfo.value = false;
   }
 };
 
-/* ✅ 닉네임 수정 모드 시작/취소 */
+/* 닉네임 수정 */
 const startEditNickname = () => {
   editingNickname.value = true;
   nicknameMsg.value = "";
   nicknameOk.value = false;
-
-  // 현재 닉네임을 입력칸에 채움
   newNickname.value = (myInfo.value?.nickname || "").toString();
   nicknameAvailable.value = null;
   nicknameCheckMsg.value = "";
@@ -239,14 +262,11 @@ const cancelEditNickname = () => {
   nicknameCheckMsg.value = "";
   nicknameMsg.value = "";
   nicknameOk.value = false;
-
-  // 입력값 원복
   newNickname.value = (myInfo.value?.nickname || "").toString();
 };
 
 const onBlurNickname = async () => {
   if (!editingNickname.value) return;
-
   const nn = (newNickname.value || "").trim();
 
   if (!nn) {
@@ -290,11 +310,9 @@ const onBlurNickname = async () => {
 
 const canChangeNickname = computed(() => {
   if (!editingNickname.value) return false;
-
   const nn = (newNickname.value || "").trim();
   if (!nn) return false;
   if (loadingNickname.value || loadingNicknameCheck.value) return false;
-
   return nicknameAvailable.value === true;
 });
 
@@ -310,19 +328,20 @@ const onChangeNickname = async () => {
     await MypageApi.changeNickName(nn);
     nicknameOk.value = true;
     nicknameMsg.value = "닉네임이 변경되었습니다.";
-
+    alert("닉네임이 변경되었습니다.");
     await reloadInfo();
-    editingNickname.value = false; // ✅ 저장 후 보기모드로
+    editingNickname.value = false;
   } catch (e) {
     console.log(e);
     nicknameOk.value = false;
     nicknameMsg.value = "닉네임 변경 중 오류가 발생했습니다.";
+    alert("닉네임 변경 중 오류가 발생했습니다.");
   } finally {
     loadingNickname.value = false;
   }
 };
 
-/* ✅ 비밀번호 패널 토글 */
+/* 비밀번호 패널 */
 const togglePasswordPanel = () => {
   showPasswordPanel.value = !showPasswordPanel.value;
   if (!showPasswordPanel.value) {
@@ -333,26 +352,24 @@ const togglePasswordPanel = () => {
 const passwordValid = computed(() => {
   const pw = (newPassword.value || "").trim();
   if (pw.length < 8) return false;
-
   const hasLetter = /[A-Za-z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
   const hasSpecial = /[^A-Za-z0-9]/.test(pw);
-
   return hasLetter && hasNumber && hasSpecial;
 });
 
 const passwordRuleMsg = computed(() => {
   const pw = (newPassword.value || "").trim();
-  if (!pw) return "비밀번호 규칙: 8자 이상, 영문/숫자/특수문자 포함";
+  if (!pw) return "8자 이상, 영문/숫자/특수문자 포함";
   return passwordValid.value
-    ? "비밀번호 규칙을 만족합니다."
-    : "8자 이상, 영문/숫자/특수문자를 모두 포함해야 합니다.";
+    ? "사용 가능한 비밀번호입니다."
+    : "규칙에 맞지 않습니다.";
 });
 
 const passwordRuleColor = computed(() => {
   const pw = (newPassword.value || "").trim();
-  if (!pw) return "#666";
-  return passwordValid.value ? "#333" : "#c00";
+  if (!pw) return "#6b7280";
+  return passwordValid.value ? "#4ade80" : "#f87171";
 });
 
 const canChangePassword = computed(() => {
@@ -371,8 +388,7 @@ const clearPwInputs = () => {
 const onChangePassword = async () => {
   const cp = (currentPassword.value || "").trim();
   const np = (newPassword.value || "").trim();
-  if (!cp || !np) return;
-  if (!passwordValid.value) return;
+  if (!cp || !np || !passwordValid.value) return;
 
   loadingPw.value = true;
   pwOk.value = false;
@@ -382,12 +398,14 @@ const onChangePassword = async () => {
     await MypageApi.changePW(cp, np);
     pwOk.value = true;
     pwMsg.value = "비밀번호가 변경되었습니다.";
+    alert("비밀번호가 변경되었습니다.");
     clearPwInputs();
-    showPasswordPanel.value = false; // ✅ 완료 후 닫기(원치 않으면 제거)
+    showPasswordPanel.value = false;
   } catch (e) {
     console.log(e);
     pwOk.value = false;
     pwMsg.value = "비밀번호 변경 중 오류가 발생했습니다.";
+    alert("비밀번호 변경 중 오류가 발생했습니다.");
   } finally {
     loadingPw.value = false;
   }
@@ -399,114 +417,327 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.mypage {
+.page-container {
+  height: 100%;
   padding: 16px;
-  max-width: 720px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-top: 10px;
 }
 
-.state {
-  padding: 12px 0;
-  color: var(--text);
-}
-
-.state--error {
-  color: #b91c1c;
-}
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.card__title {
-  margin: 0 0 12px;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
-.info {
+.feed-card-layout {
+  width: 100%;
+  height: 100%;
+  max-width: 800px; /* 너무 넓어지지 않게 제한 */
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  background: transparent;
+  overflow: visible;
+}
+
+/* ✅ 헤더 (폴더 탭) */
+.feed-header {
+  display: flex;
+  align-items: flex-end;
+  height: 50px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.folder-tab {
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 100%;
+  min-width: 200px;
+  position: relative;
+  top: 1px;
+}
+
+.desktop-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* ✅ 본문 (유리 패널) */
+.feed-body.glass-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 24px 24px 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  z-index: 4;
+}
+
+/* ✅ 내부 콘텐츠 스타일 */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section-title {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  border-left: 4px solid #72d6f5;
+  padding-left: 12px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.label {
+  width: 100px;
+  color: #9ca3af;
+  font-weight: 600;
   font-size: 14px;
 }
 
-.info__row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.info__label {
-  width: 84px;
-  color: var(--muted);
-  font-weight: 800;
-}
-
-.info__value {
+.value-wrapper {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.badge-admin {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #fff;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
   gap: 12px;
 }
 
-.field label {
-  display: block;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 6px;
+.value-text {
+  color: #e5e7eb;
+  font-size: 15px;
 }
 
-.input {
+.value-text.highlight {
+  font-weight: 700;
+  color: #fff;
+}
+
+.badge-admin {
+  background: linear-gradient(135deg, #ff9a9e 0%, #ff6b6b 100%);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.input-dark {
   width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: #fff;
-  color: var(--text);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
   outline: none;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
-.input:focus {
-  box-shadow: var(--focus);
-  border-color: rgba(59, 130, 246, 0.7);
+.input-dark:focus {
+  border-color: #72d6f5;
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.hint {
-  margin-top: 8px;
+.edit-mode-group {
+  flex: 1;
+  max-width: 300px;
+}
+
+/* 메시지 영역 */
+.msg-row {
+  display: flex;
+  margin-top: -10px;
+}
+.spacer {
+  width: 100px; /* 라벨 너비와 동일 */
+}
+.msg-content {
+  flex: 1;
+}
+.hint-text {
+  font-size: 13px;
+  margin: 4px 0 0 0;
+}
+
+/* 액션 버튼 영역 */
+.action-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.action-row.left-align {
+  justify-content: flex-start;
+}
+
+/* 유리 버튼 스타일 */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ccc;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-glass.primary {
+  background: rgba(114, 214, 245, 0.15);
+  border-color: rgba(114, 214, 245, 0.4);
+  color: #72d6f5;
+}
+
+.btn-glass.primary:hover:not(:disabled) {
+  background: rgba(114, 214, 245, 0.3);
+  color: #fff;
+}
+
+.btn-glass:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-glass.small {
+  padding: 4px 10px;
   font-size: 12px;
+}
+
+/* 구분선 */
+.divider {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 10px 0;
+}
+
+/* 비밀번호 패널 애니메이션 */
+.password-panel {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* 스크롤바 */
+.feed-body::-webkit-scrollbar {
+  width: 6px;
+}
+.feed-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.feed-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* 로딩/에러 */
+.status-msg {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
+.status-msg.error {
+  color: #f87171;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 900px) {
+  .page-container {
+    padding: 12px;
+  }
+
+  .feed-body.glass-panel-body {
+    padding: 20px;
+  }
+
+  .folder-tab {
+    min-width: 0;
+  }
+
+  /* 모바일에서 라벨/값 줄바꿈 */
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .label {
+    width: auto;
+    font-size: 12px;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .edit-mode-group {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 </style>

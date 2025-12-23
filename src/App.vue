@@ -1,14 +1,13 @@
-<!-- src/App.vue -->
 <template>
   <div class="app-shell">
     <SnowCanvas />
 
-    <!-- 로그인 상태 + 현재 라우트가 레이아웃 허용일 때만 노출 -->
     <Header
       v-if="showLayout"
       @toggle-nav="toggleNav"
       @submit-prompt="onGlobalSubmit"
       :hide-prompt="!showGlobalPrompt"
+      class="app-header"
     />
 
     <div
@@ -16,17 +15,14 @@
       class="app-main"
       :class="{ 'is-no-sidenav': hideSideNav }"
     >
-      <!-- ✅ mypage에서는 좌측 네비(Admin/Navi) 자체를 숨김 -->
-      <div
+      <aside
         v-if="!hideSideNav"
         class="app-nav-wrap"
         :class="{ 'is-open': isNavOpen }"
       >
-        <Admin />
-        <Navi class="app-nav" />
-      </div>
+        <Navi :is-open="isNavOpen" @close="closeNav" class="app-nav" />
+      </aside>
 
-      <!-- ✅ 모바일 오버레이도 좌측 네비가 있을 때만 -->
       <div
         v-if="!hideSideNav && isMobile && isNavOpen"
         class="nav-backdrop"
@@ -34,18 +30,18 @@
         aria-hidden="true"
       />
 
-      <main class="app-content" role="main">
-        <router-view />
+      <main class="app-content-wrap" role="main">
+        <div class="app-content-inner">
+          <router-view />
+        </div>
       </main>
     </div>
 
-    <!-- 비로그인(로그인/회원가입/아이디·비번찾기 등) -->
-    <main v-else class="app-content app-content--solo" role="main">
+    <main v-else class="app-content--solo" role="main">
       <router-view />
     </main>
 
-    <!-- ✅ Footer는 항상 맨 아래 -->
-    <Footer />
+    <Footer class="app-footer" />
   </div>
 </template>
 
@@ -54,8 +50,7 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Navi from "@/components/Navi.vue";
-import Admin from "@/components/Admin.vue";
-import Footer from "@/components/Footer.vue"; // ✅ 추가
+import Footer from "@/components/Footer.vue";
 import { useUserStore } from "@/stores/user";
 import SnowCanvas from "./components/SnowCanvas.vue";
 import { usePromptStore } from "@/stores/promptStore";
@@ -81,7 +76,6 @@ const showLayout = computed(() => {
   return isLoggedIn.value;
 });
 
-/* ✅ mypage에서는 Navi/Admin/WritePrompt 모두 숨김 */
 const hideSideNavOnRoutes = new Set(["mypage"]);
 const hidePromptOnRoutes = new Set(["mypage", "survey"]);
 
@@ -95,7 +89,6 @@ const showGlobalPrompt = computed(() => {
   return !hidePromptOnRoutes.has(routeName.value);
 });
 
-/* (유지) 히스토리 로딩 */
 watch(
   () => showLayout.value,
   async (visible) => {
@@ -105,10 +98,9 @@ watch(
       promptStore.clearHistory();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
-/* ✅ 모바일 네비 토글 */
 const isNavOpen = ref(false);
 const isMobile = ref(false);
 
@@ -140,7 +132,7 @@ watch(
   () => route.fullPath,
   () => {
     if (isMobile.value) closeNav();
-  },
+  }
 );
 
 watch(
@@ -148,7 +140,7 @@ watch(
   (v) => {
     if (v) isNavOpen.value = false;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const onGlobalSubmit = async (promptText) => {
@@ -163,7 +155,7 @@ const onGlobalSubmit = async (promptText) => {
 </script>
 
 <style>
-/* ====== 아래는 당신이 준 CSS를 "그대로" 유지 ====== */
+/* ====== Global Reset & Variables ====== */
 :root {
   --bg: #f6f7fb;
   --panel: #ffffff;
@@ -173,6 +165,8 @@ const onGlobalSubmit = async (promptText) => {
   --shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
   --radius: 14px;
   --focus: 0 0 0 3px rgba(59, 130, 246, 0.25);
+
+  --header-height: 56px;
 }
 
 *,
@@ -184,104 +178,106 @@ const onGlobalSubmit = async (promptText) => {
 html,
 body {
   height: 100%;
-  overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
   background: radial-gradient(circle at bottom, #0a0a15, #000);
   color: var(--text);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Helvetica,
-    Arial,
-    "Apple SD Gothic Neo",
-    "Noto Sans KR",
-    "Malgun Gothic",
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     sans-serif;
   line-height: 1.45;
 }
 
+/* ====== App Shell Structure ====== */
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.app-footer {
+  flex-shrink: 0;
+  z-index: 50;
 }
 
 .app-main {
   flex: 1;
+  min-height: 0;
+
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 16px;
+  grid-template-columns: max-content 1fr;
+  gap: 0;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.app-main.is-no-sidenav {
+  grid-template-columns: 1fr;
+}
+
+/* ====== Sidebar Area ====== */
+.app-nav-wrap {
+  height: 100%;
+  overflow-y: auto;
   padding: 16px;
+
+  /* 스크롤바 디자인 (Webkit) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-.app-content {
-  min-width: 0;
+/* ====== Content Area ====== */
+.app-content-wrap {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
+/* 실제 콘텐츠가 들어가는 내부 래퍼 */
+.app-content-inner {
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* 비로그인 화면 (독립적 스크롤) */
 .app-content--solo {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+/* 비로그인 화면 내부 래퍼 */
+.app-content--solo > * {
   max-width: 520px;
   width: 100%;
-  margin: 0 auto;
-  padding: 24px 16px 40px;
+  margin: 20px auto;
+  padding: 0 16px;
 }
 
-.container {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.page {
-  width: 100%;
-}
-
-.page-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 14px;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
+/* ====== Components Common Styles ====== */
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-}
-
-.card--padded {
-  padding: 16px;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.field label {
-  display: block;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 6px;
 }
 
 input,
@@ -295,23 +291,7 @@ textarea {
   color: var(--text);
   outline: none;
 }
-
-input:focus,
-select:focus,
-textarea:focus {
-  box-shadow: var(--focus);
-  border-color: rgba(59, 130, 246, 0.7);
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
-
 button {
-  appearance: none;
   border: 1px solid var(--line);
   background: #fff;
   color: var(--text);
@@ -319,99 +299,62 @@ button {
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 600;
-  transition:
-    transform 0.04s ease,
-    background 0.12s ease,
-    border-color 0.12s ease;
 }
-
-button:hover {
-  background: #fafafa;
-  border-color: #d1d5db;
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn-primary {
   background: #111827;
   color: #fff;
   border-color: #111827;
 }
 
-.btn-primary:hover {
-  background: #0b1220;
-  border-color: #0b1220;
-}
-
-.btn-ghost {
-  background: transparent;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
-}
-
-/* ✅ 당신이 준 responsive 유지 */
+/* ====== Mobile Responsive ====== */
 @media (max-width: 900px) {
   .app-main {
     grid-template-columns: 1fr;
-    padding: 12px;
   }
-}
 
-/* ====== 여기부터 "추가"만 (기존 규칙 변경 없음) ====== */
-
-/* ✅ mypage처럼 사이드 네비를 숨길 때 1컬럼 레이아웃 */
-.app-main.is-no-sidenav {
-  grid-template-columns: 1fr;
-}
-
-/* ✅ Admin + Navi를 세로로 쌓을 때 간격 */
-.app-nav-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ✅ 모바일에서만 Navi를 drawer로 숨김/표시 */
-@media (max-width: 900px) {
+  /* 사이드바를 Drawer 형태로 변경 */
   .app-nav-wrap {
     position: fixed;
-    top: 56px; /* Header 높이 */
+    top: 0;
     left: 0;
-    width: 78vw;
-    max-width: 320px;
-    height: calc(100vh - 56px);
-    z-index: 60;
+    bottom: 0;
+    width: 280px;
+    overflow-x: hidden;
+    z-index: 100;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 
-    transform: translateX(-110%);
-    transition: transform 0.2s ease;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: calc(var(--header-height) + 16px); /* 헤더 아래부터 시작 */
   }
 
   .app-nav-wrap.is-open {
     transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
   }
 
   .nav-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 55;
-    background: rgba(0, 0, 0, 0.35);
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(0.3px);
   }
+}
+
+/* 스크롤바 커스텀 (Chrome/Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 </style>

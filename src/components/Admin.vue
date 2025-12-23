@@ -1,12 +1,15 @@
-<!-- src/components/Admin.vue -->
 <template>
-  <!-- ✅ ADMIN일 때만 보이도록 -->
-  <aside v-if="isAdmin" class="admin-bar" aria-label="Admin bar">
+  <div v-if="isAdmin" class="admin-bar" aria-label="Admin bar">
+    <div class="admin-header">
+      <span class="admin-label">Administrator</span>
+      <div class="status-dot"></div>
+    </div>
+
     <button class="admin-btn" type="button" @click="openAdminModal">
-      관리자 페이지
+      <span class="btn-icon">⚙️</span>
+      관리자 대시보드
     </button>
 
-    <!-- ✅ 모달은 Admin.vue로 이동 -->
     <teleport to="body">
       <div
         v-if="adminModalOpen"
@@ -15,7 +18,14 @@
         aria-modal="true"
         @click.self="closeAdminModal"
       >
-        <section class="admin-modal">
+        <section class="admin-modal-panel">
+          <header class="admin-modal__header">
+            <h3>CloudWatch Monitoring</h3>
+            <button type="button" class="close-btn" @click="closeAdminModal">
+              ✕
+            </button>
+          </header>
+
           <div class="admin-modal__body">
             <div class="admin-modal__frame-wrap">
               <iframe
@@ -30,11 +40,11 @@
         </section>
       </div>
     </teleport>
-  </aside>
+  </div>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
@@ -43,8 +53,7 @@ const role = computed(() => userStore?.state?.user?.role || "");
 const isAdmin = computed(() => role.value === "ADMIN");
 
 const adminModalOpen = ref(false);
-
-const CLOUDWATCH_URL = import.meta.env.VITE_CLOUDWATCH_DASHBOARD_URL;
+const CLOUDWATCH_URL = import.meta.env.VITE_CLOUDWATCH_DASHBOARD_URL || "";
 
 const openAdminModal = () => {
   adminModalOpen.value = true;
@@ -57,67 +66,166 @@ const closeAdminModal = () => {
 
 <style scoped>
 .admin-bar {
-  padding: 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: rgba(40, 30, 30, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 100, 100, 0.2);
+  border-radius: 24px;
+
+  box-shadow: 0 8px 32px 0 rgba(255, 80, 80, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.admin-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ff8a80;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff5252;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff5252;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .admin-btn {
   width: 100%;
-  padding: 10px 12px;
-  font-weight: 800;
+  padding: 12px;
   border-radius: 12px;
-  background: #111827;
-  border-color: #111827;
-  color: #fff;
+  border: none;
   cursor: pointer;
+
+  background: linear-gradient(135deg, #ff9a9e 0%, #ff6b6b 100%);
+
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  transition: all 0.2s ease;
 }
 
-/* ===== 관리자 모달 ===== */
+.admin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+  filter: brightness(1.1);
+}
+
+.admin-btn:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
 .admin-modal__backdrop {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
 }
 
-.admin-modal {
+.admin-modal-panel {
   width: min(1100px, 100%);
-  height: min(720px, 100%);
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  height: min(720px, 90vh);
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.admin-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-modal__header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+.close-btn:hover {
+  color: #fff;
 }
 
 .admin-modal__body {
-  padding: 12px 16px 16px;
+  padding: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  height: 100%;
   min-height: 0;
+  background: #fff;
 }
 
 .admin-modal__frame-wrap {
   flex: 1;
-  min-height: 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .admin-modal__frame {
   width: 100%;
   height: 100%;
   border: 0;
+  display: block;
 }
 </style>

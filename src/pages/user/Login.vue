@@ -1,114 +1,125 @@
 <template>
-  <div class="page">
-    <div class="login-card">
-      <div class="card-head">
-        <h1 class="title">로그인</h1>
-        <p class="subtitle">Newstagram에 오신 것을 환영합니다!</p>
-      </div>
-
-      <form class="login-form" @submit.prevent="login">
-        <div class="input-group">
-          <label class="input-label">이메일</label>
-          <input
-            v-model="loginUser.email"
-            type="email"
-            placeholder="Enter Email"
-            class="custom-input"
-            autocomplete="email"
-          />
-        </div>
-
-        <div class="input-group">
-          <label class="input-label">비밀번호</label>
-          <div class="input-wrapper">
-            <input
-              v-model="loginUser.password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="Enter password"
-              class="custom-input"
-              autocomplete="current-password"
-            />
-            <!-- <button type="button" class="toggle-pwd-btn" @click="togglePassword">
-              {{ showPassword ? 'Show' : 'Hide' }}
-            </button> -->
-            <button
-              type="button"
-              class="toggle-pwd-btn"
-              @click="togglePassword"
-            >
-              <svg
-                v-if="showPassword"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                ></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-            </button>
+  <main class="page-container">
+    <section class="feed-card-layout">
+      <div class="feed-body glass-panel-body">
+        <div class="login-content-wrapper">
+          <div class="card-head">
+            <h1 class="title">Welcome Back!</h1>
+            <p class="subtitle">Newstagram에 오신 것을 환영합니다.</p>
           </div>
-        </div>
 
-        <div class="form-helper">
-          <span type="button" class="helper-text" @click="goFindId"
-            >이메일 찾기</span
-          >
-          <span type="button" class="helper-text" @click="goFindPwd"
-            >비밀번호 재설정</span
-          >
-        </div>
+          <form class="login-form" @submit.prevent="login">
+            <div class="input-group">
+              <label class="input-label">이메일</label>
+              <input
+                v-model="loginUser.email"
+                type="email"
+                placeholder="example@email.com"
+                class="input-dark"
+                autocomplete="email"
+              />
+            </div>
 
-        <button class="btn-login" type="submit">로그인</button>
+            <div class="input-group">
+              <label class="input-label">비밀번호</label>
+              <div class="password-wrapper">
+                <input
+                  v-model="loginUser.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="비밀번호 입력"
+                  class="input-dark"
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="toggle-pwd-btn"
+                  @click="togglePassword"
+                  tabindex="-1"
+                >
+                  <svg
+                    v-if="showPassword"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    ></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-        <div class="divider">
-          <span class="divider-line"></span>
-          <span class="divider-text">또는</span>
-          <span class="divider-line"></span>
-        </div>
+            <div class="form-helper">
+              <button type="button" class="helper-text" @click="goFindId">
+                이메일 찾기
+              </button>
+              <span class="divider-dot">·</span>
+              <button type="button" class="helper-text" @click="goFindPwd">
+                비밀번호 재설정
+              </button>
+            </div>
 
-        <div class="social-buttons">
-          <a
-            :href="`${baseUrl}/api/oauth2/authorization/google`"
-            class="btn-social"
-            target="_self"
-          >
-            <img src="/src/assets/google_logo.svg" alt="Google" width="20" />
-            <span class="social-text">Google 계정으로 로그인</span>
-          </a>
-        </div>
+            <button class="btn-glass primary full-width" type="submit">
+              로그인
+            </button>
 
-        <div class="card-footer">
-          <span>계정이 없으신가요? </span>
-          <button type="button" class="link-btn" @click="goSignup">
-            회원가입
-          </button>
+            <div class="divider">
+              <span class="divider-line"></span>
+              <span class="divider-text">또는</span>
+              <span class="divider-line"></span>
+            </div>
+
+            <div class="social-buttons">
+              <a
+                :href="`${baseUrl}/api/oauth2/authorization/google`"
+                class="btn-glass google-btn full-width"
+                target="_self"
+              >
+                <img
+                  src="/src/assets/google_logo.svg"
+                  alt="Google"
+                  width="20"
+                />
+                <span class="social-text">Google 계정으로 로그인</span>
+              </a>
+            </div>
+
+            <div class="card-footer">
+              <span>계정이 없으신가요? </span>
+              <button type="button" class="link-btn" @click="goSignup">
+                회원가입
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
@@ -154,233 +165,294 @@ function goFindPwd() {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 .page-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f5f1; /* 부드러운 배경색 */
-  background-image: radial-gradient(#e8e0d5 1px, transparent 1px);
-  background-size: 20px 20px;
-  font-family: "Inter", sans-serif;
-  padding: 20px;
+  height: fit-content;
+  padding: 16px;
+  margin: auto;
+  box-sizing: border-box;
 }
 
-.login-card {
+.feed-card-layout {
   width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+  height: auto;
+  max-width: 520px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  text-align: center;
+  background: transparent;
+  overflow: visible;
 }
 
-/* Header */
-.card-header {
+/* ✅ 헤더 (폴더 탭) */
+.feed-header {
+  display: flex;
+  align-items: flex-end;
+  height: 50px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.folder-tab {
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 100%;
+  min-width: 160px;
+  position: relative;
+  top: 1px;
+}
+
+.desktop-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.feed-body.glass-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  z-index: 4;
+}
+
+.login-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center; /* 세로 중앙 정렬 */
+}
+
+/* 타이틀 섹션 */
+.card-head {
+  text-align: center;
   margin-bottom: 32px;
 }
 
 .title {
   font-size: 28px;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 12px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 15px;
-  color: #666;
-  line-height: 1.5;
+  color: #9ca3af;
+  margin: 0;
 }
 
-/* Form Layout */
+/* 폼 스타일 */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* Inputs  */
 .input-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 라벨 왼쪽 정렬 강제 */
-  width: 100%;
+  gap: 8px;
 }
 
 .input-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px; /* 인풋과의 간격 */
-  margin-left: 2px;
-}
-
-.input-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.custom-input {
-  width: 100%;
-  height: 52px;
-  padding: 0 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 15px;
-  color: #111;
-  background-color: #fff;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.custom-input::placeholder {
-  color: #ccc;
-}
-
-/* Focus Action: Black Border */
-.custom-input:focus {
-  border-color: #111;
-  box-shadow: 0 0 0 1px #111;
-}
-
-.pwd-input {
-  padding-right: 60px;
-}
-
-.toggle-pwd-btn {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 13px;
-  font-weight: 500;
-  color: #888;
-  cursor: default;
-}
-
-.toggle-pwd-btn:hover {
-  color: #111;
-}
-
-.btn-login {
-  background: #111827;
-  color: #fff;
-  border-color: #111827;
-  height: 48px;
+  color: #e5e7eb;
   font-size: 14px;
   font-weight: 600;
+  margin-left: 4px;
 }
 
-/* Helper Text */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 다크 모드 입력 필드 */
+.input-dark {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.input-dark:focus {
+  border-color: #72d6f5;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
+}
+
+/* 비밀번호 토글 버튼 */
+.toggle-pwd-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+.toggle-pwd-btn:hover {
+  color: #fff;
+}
+
+/* 아이디/비번 찾기 링크 */
 .form-helper {
-  text-align: right;
-  margin-top: -15px;
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: -8px;
 }
 
 .helper-text {
-  font-size: 14px;
-  color: #111;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 13px;
   cursor: pointer;
-  font-weight: 500;
-  margin-left: 10px;
+  padding: 0;
 }
-
 .helper-text:hover {
+  color: #fff;
   text-decoration: underline;
 }
 
-/* Divider */
+.divider-dot {
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.2s;
+  height: 52px; /* 버튼 높이 키움 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-glass.primary {
+  background: rgba(114, 214, 245, 0.15);
+  border-color: rgba(114, 214, 245, 0.4);
+  color: #72d6f5;
+}
+
+.btn-glass.primary:hover {
+  background: rgba(114, 214, 245, 0.3);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(114, 214, 245, 0.2);
+}
+
+.full-width {
+  width: 100%;
+}
+
 .divider {
   display: flex;
   align-items: center;
-  margin: 0;
-  color: #111;
-  font-weight: 500;
-  font-size: 14px;
 }
 
 .divider-line {
   flex: 1;
   height: 1px;
-  background-color: #111;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .divider-text {
-  padding: 0 16px;
-  background: #fff;
+  padding: 0 12px;
+  color: #6b7280;
+  font-size: 13px;
 }
 
-/* Social Buttons */
-.social-buttons {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.btn-social {
-  flex: 1;
-  height: 48px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
+/* 소셜 버튼 */
+.google-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  border-color: transparent;
   text-decoration: none;
-  transition: background-color 0.2s;
-  color: #333;
+  gap: 10px;
 }
-
-.btn-social:hover {
-  background-color: #f9f9f9;
+.google-btn:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
 }
-
 .social-text {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
-.social-icon {
-  width: 20px;
-  height: 20px;
-}
-
-/* Google Social Button Specifics to match link style */
-a.btn-social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-/* Footer */
+/* 하단 회원가입 링크 */
 .card-footer {
+  margin-top: 10px;
+  text-align: center;
   font-size: 14px;
-  color: #666;
+  color: #9ca3af;
 }
 
 .link-btn {
-  background: none;
+  background: transparent;
   border: none;
-  padding: 0;
+  color: #72d6f5;
   font-weight: 700;
-  color: #111;
   cursor: pointer;
   margin-left: 4px;
+  padding: 4px;
 }
-
 .link-btn:hover {
   text-decoration: underline;
+  color: #fff;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 900px) {
+  .page-container {
+    padding: 12px;
+  }
+
+  .feed-body.glass-panel-body {
+    padding: 24px;
+  }
+
+  .folder-tab {
+    min-width: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+  }
 }
 </style>

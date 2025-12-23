@@ -1,17 +1,38 @@
 <template>
-  <main style="padding: 16px">
-    <section style="display: flex; gap: 8px; margin-bottom: 12px">
-      <div style="flex: 1"></div>
+  <main class="home-container">
+    <section class="feed-card">
+      <header class="feed-header">
+        <div style="display: flex; align-items: center; gap: 8px; width: 100%">
+          <h2 class="desktop-label">
+            {{ periodLabel }}
+          </h2>
 
-      <button type="button" @click="reload" :disabled="loading">
-        새로고침
-      </button>
-    </section>
+          <button
+            type="button"
+            :class="['tab-btn', { active: periodType === 'REALTIME' }]"
+            @click="changePeriod('REALTIME')"
+            :disabled="loading"
+          >
+            🔥 실시간
+          </button>
 
-    <div v-if="loading" style="padding: 12px 0">불러오는 중...</div>
-    <div v-else-if="errorMsg" style="padding: 12px 0; color: #c00">
-      {{ errorMsg }}
-    </div>
+          <button
+            type="button"
+            :class="['tab-btn', { active: periodType === 'DAILY' }]"
+            @click="changePeriod('DAILY')"
+            :disabled="loading"
+          >
+            일간
+          </button>
+
+          <button
+            type="button"
+            :class="['tab-btn', { active: periodType === 'WEEKLY' }]"
+            @click="changePeriod('WEEKLY')"
+            :disabled="loading"
+          >
+            주간
+          </button>
 
           <div style="flex: 1"></div>
 
@@ -44,6 +65,7 @@
         <div v-if="loading && groups.length === 0" class="status-msg">
           이슈를 불러오는 중입니다...
         </div>
+
         <div v-else-if="errorMsg" class="status-msg error">
           {{ errorMsg }}
         </div>
@@ -71,6 +93,7 @@
                   alt="thumbnail"
                   class="thumbnail-img"
                 />
+
                 <div v-else class="thumbnail-placeholder">No Image</div>
               </div>
 
@@ -124,6 +147,7 @@
       <div class="article-modal__panel">
         <header class="article-modal__header">
           <span>기사 원문</span>
+
           <button type="button" @click="closeModal">닫기</button>
         </header>
 
@@ -139,13 +163,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, onMounted, watch, onBeforeUnmount, computed } from "vue";
 import HomeApi from "../../api/HomeApi";
 import LogApi from "../../api/LogApi";
 import { useHomePeriodStore } from "../../stores/homePeriodStore";
 
 const homePeriodStore = useHomePeriodStore();
 const periodType = ref(homePeriodStore.period || "REALTIME");
+
+// 현재 선택된 기간에 따른 텍스트 라벨
+const periodLabel = computed(() => {
+  switch (periodType.value) {
+    case "REALTIME":
+      return "🔥 실시간 이슈";
+    case "DAILY":
+      return "📅 일간 이슈";
+    case "WEEKLY":
+      return "📆 주간 이슈";
+    default:
+      return "이슈";
+  }
+});
+
 const cursor = ref(0);
 const groups = ref([]);
 const hasNext = ref(false);
@@ -156,6 +195,7 @@ const errorMsg = ref("");
 
 let didMount = false;
 const JTBC_PREFIX = "https://news.jtbc.co.kr/";
+
 const modalOpen = ref(false);
 const iframeUrl = ref("");
 let __scrollY = 0;
@@ -200,7 +240,6 @@ const groupKey = (g) =>
 const formatDate = (iso) => {
   try {
     const d = new Date(iso);
-    // 날짜 포맷 간단하게
     return (
       d.toLocaleDateString() +
       " " +
@@ -290,6 +329,7 @@ const openArticle = async (article) => {
   } catch (e) {
     console.log(e);
   }
+
   const url = (article?.url || "").trim();
   if (!url) return;
 
@@ -297,6 +337,7 @@ const openArticle = async (article) => {
     openInNewWindowWithNotice(url);
     return;
   }
+
   iframeUrl.value = url;
   modalOpen.value = true;
   lockBodyScroll();
@@ -333,36 +374,26 @@ onBeforeUnmount(() => {
   if (modalOpen.value) unlockBodyScroll();
 });
 </script>
+
 <style scoped>
-/* ✅ 메인 컨테이너 */
 .home-container {
-  height: calc(100vh - 56px);
-  padding: 16px;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ✅ 피드 카드 (다크 글래스 스타일) 
-     - 배경을 반투명한 검정으로 변경
-     - backdrop-filter로 블러 효과 추가
-  */
+/* ✅ 피드 카드 */
 .feed-card {
   width: 100%;
   height: 100%;
   max-width: 100%;
   margin: 0 auto;
-
-  /* [핵심 변경] 반투명한 어두운 배경 + 블러 효과 */
   background-color: rgba(30, 30, 30, 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-
-  /* 테두리를 아주 얇고 연한 흰색으로 주어 유리 느낌 강조 */
   border: 1px solid rgba(255, 255, 255, 0.1);
-
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* 그림자도 조금 더 진하게 */
-
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -370,19 +401,29 @@ onBeforeUnmount(() => {
 
 /* ✅ 헤더 */
 .feed-header {
-  padding: 16px 20px;
-  /* 헤더 배경을 투명하게 하거나 카드와 동일하게 맞춤 */
+  padding: 12px 20px;
   background: transparent;
-  /* 구분선도 연한 투명 흰색으로 */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
-/* 탭 버튼 스타일 (다크 모드용) */
+/* ✅ [추가] 웹(PC) 전용 라벨 스타일 */
+.desktop-label {
+  display: block; /* 기본적으로 보임 */
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* ✅ 탭 버튼 스타일 (다크 모드용) */
 .tab-btn {
+  /* [수정] 데스크탑에서는 숨김 */
+  display: none;
   border: 1px solid transparent;
   background: transparent;
-  color: #888; /* 비활성 텍스트 */
+  color: #888;
   border-radius: 20px;
   padding: 8px 16px;
   font-weight: 700;
@@ -397,7 +438,6 @@ onBeforeUnmount(() => {
 }
 
 .tab-btn.active {
-  /* 활성화 시 흰색 배경에 검은 글씨, 혹은 그 반대 */
   background: #ffffff;
   color: #000000;
 }
@@ -409,7 +449,6 @@ onBeforeUnmount(() => {
   padding: 0 20px 20px 20px;
 }
 
-/* 스크롤바 커스텀 (다크 테마) */
 .feed-body::-webkit-scrollbar {
   width: 6px;
 }
@@ -417,17 +456,17 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 .feed-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2); /* 스크롤바 색상 밝게 */
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
 
 .status-msg {
   padding: 24px 0;
   text-align: center;
-  color: #999; /* 밝은 회색 */
+  color: #999;
 }
 .status-msg.error {
-  color: #ff6b6b; /* 에러는 밝은 빨강 */
+  color: #ff6b6b;
 }
 
 /* ✅ 기사 아이템 카드 */
@@ -435,45 +474,38 @@ onBeforeUnmount(() => {
   width: 100%;
   background: transparent;
   border: none;
-  /* 리스트 구분선 연하게 */
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 20px 4px;
   cursor: pointer;
   transition: background 0.2s;
   border-radius: 0;
 }
-
 .article-item:last-child {
   border-bottom: none;
 }
-
 .article-item:hover {
-  /* 호버 시 살짝 밝게 비치는 느낌 */
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* 썸네일 스타일 */
+/* 썸네일 */
 .thumbnail-wrapper {
   width: 120px;
   flex: 0 0 120px;
 }
-
 .thumbnail-img {
   width: 120px;
   height: 84px;
   object-fit: cover;
   border-radius: 8px;
-  /* 이미지 테두리 제거하거나 어둡게 */
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: block;
 }
-
 .thumbnail-placeholder {
   width: 120px;
   height: 84px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2); /* 어두운 배경 */
+  background: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,7 +513,7 @@ onBeforeUnmount(() => {
   font-size: 12px;
 }
 
-/* 텍스트 스타일 (다크 모드에 맞춰 밝게) */
+/* 텍스트 스타일 */
 .meta-info {
   display: flex;
   justify-content: space-between;
@@ -489,45 +521,40 @@ onBeforeUnmount(() => {
 }
 .date {
   font-size: 12px;
-  color: #888; /* 연한 회색 */
+  color: #888;
 }
-
 .article-title {
   font-size: 17px;
   font-weight: 700;
-  color: #f1f1f1; /* 거의 흰색 */
+  color: #f1f1f1;
   margin: 0 0 8px 0;
   line-height: 1.35;
-
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 .article-desc {
   font-size: 14px;
-  color: #b0b0b0 !important; /* 중간 톤 회색 */
+  color: #b0b0b0 !important;
   line-height: 1.5;
   margin: 0;
-
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* 더 불러오기 버튼 영역 */
+/* 더 불러오기 */
 .load-more-area {
   margin-top: 10px;
   display: flex;
   justify-content: center;
   padding-bottom: 10px;
 }
-
 .load-more-btn {
   border: none;
-  background: rgba(255, 255, 255, 0.1); /* 반투명 버튼 */
+  background: rgba(255, 255, 255, 0.1);
   color: #ddd;
   padding: 10px 20px;
   border-radius: 20px;
@@ -544,43 +571,39 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
-/* 새로고침 아이콘 버튼 스타일 */
+/* 새로고침 아이콘 */
 .refresh-icon-btn {
   border: none;
   background: transparent;
   padding: 8px;
   border-radius: 50%;
-  color: #888; /* 기본 색상 */
+  color: #888;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
 }
-
 .refresh-icon-btn svg {
   width: 24px;
   height: 24px;
 }
-
 .refresh-icon-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff; /* 호버 시 흰색 */
+  color: #fff;
   transform: rotate(180deg);
 }
-
 .refresh-icon-btn:disabled {
   opacity: 0.4;
   cursor: default;
   pointer-events: none;
 }
 
-/* 모달 스타일 (모달은 가독성을 위해 흰색 유지 or 다크로 변경 선택 가능) 
-     여기서는 깔끔함을 위해 기존 흰색 유지하되 오버레이만 조정 */
+/* 모달 스타일 */
 .article-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75); /* 배경 더 어둡게 */
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -588,18 +611,16 @@ onBeforeUnmount(() => {
   padding: 16px;
   backdrop-filter: blur(5px);
 }
-
 .article-modal__panel {
   width: min(1000px, 100%);
   height: 85vh;
-  background: #fff; /* 기사 본문은 가독성을 위해 흰색 유지 권장 */
+  background: #fff;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
-
 .article-modal__header {
   display: flex;
   justify-content: space-between;
@@ -610,7 +631,6 @@ onBeforeUnmount(() => {
   font-size: 16px;
   color: #333;
 }
-
 .article-modal__header button {
   border: none;
   background: #f1f1f1;
@@ -620,7 +640,6 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: #333;
 }
-
 .article-modal__iframe {
   flex: 1;
   width: 100%;
@@ -628,16 +647,18 @@ onBeforeUnmount(() => {
   border: 0;
 }
 
-@media (max-width: 640px) {
-  .home-container {
-    padding: 12px;
-    height: calc(100vh - 56px);
+/* 모바일 반응형 */
+@media (max-width: 900px) {
+  .tab-btn {
+    display: block;
+  }
+  .desktop-label {
+    display: none;
   }
 
   .article-modal__overlay {
     padding: 0;
   }
-
   .article-modal__panel {
     width: 100vw;
     height: 100vh;
