@@ -1,7 +1,10 @@
 <template>
   <footer class="footer">
     <div class="footer__inner">
-      <span class="copyright">© {{ new Date().getFullYear() }} Newstagram</span>
+      <span class="copyright"
+        >© {{ new Date().getFullYear() }}
+        {{ theme === "dark" ? "Newstagram" : "Newsreads" }}</span
+      >
 
       <a
         href="https://github.com/newstagram"

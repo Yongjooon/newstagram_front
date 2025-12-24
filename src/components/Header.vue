@@ -30,7 +30,7 @@
         @click="goHome"
         aria-label="Go to Home"
       >
-        Newstagram
+        {{ theme === "dark" ? "Newstagram" : "Newsreads" }}
       </button>
 
       <div v-if="!hidePrompt" class="topbar__prompt-desktop">
@@ -68,8 +68,36 @@
           @click="toggleTheme"
           :title="theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
         >
-          <span v-if="theme === 'dark'">☀️</span>
-          <span v-else>🌙</span>
+          <svg
+            v-if="theme === 'dark'"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="theme-icon"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+            />
+          </svg>
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="theme-icon"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+            />
+          </svg>
         </button>
 
         <button
@@ -78,7 +106,27 @@
           @click="goMypage"
           aria-label="마이페이지"
         >
-          <img :src="profileIcon" alt="Profile" />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 44 44"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M22 13C20.3431 13 19 14.3431 19 16C19 17.6569 20.3431 19 22 19C23.6569 19 25 17.6569 25 16C25 14.3431 23.6569 13 22 13ZM17 16C17 13.2386 19.2386 11 22 11C24.7614 11 27 13.2386 27 16C27 18.7614 24.7614 21 22 21C19.2386 21 17 18.7614 17 16ZM15.7784 24.15C17.7739 23.2555 20.184 23 22 23C23.816 23 26.2261 23.2555 28.2216 24.15C30.2529 25.0606 32 26.722 32 29.5V30.5C32 31.8546 30.9048 33 29.5183 33H14.4817C13.0952 33 12 31.8546 12 30.5V29.5C12 26.722 13.7471 25.0606 15.7784 24.15ZM16.5966 25.975C15.0029 26.6894 14 27.778 14 29.5V30.5C14 30.7821 14.2316 31 14.4817 31H29.5183C29.7684 31 30 30.7821 30 30.5V29.5C30 27.778 28.9971 26.6894 27.4034 25.975C25.7739 25.2445 23.684 25 22 25C20.316 25 18.2261 25.2445 16.5966 25.975Z"
+              fill="currentColor"
+            />
+            <circle
+              cx="22"
+              cy="22"
+              r="21"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
         </button>
 
         <button
@@ -122,7 +170,6 @@ import UserApi from "@/api/UserApi";
 import { useUserStore } from "@/stores/user";
 
 import WritePrompt from "@/components/WritePrompt.vue";
-import profileIcon from "@/assets/profile_icon.svg";
 
 import { useTheme } from "@/composables/useTheme";
 
@@ -328,8 +375,8 @@ const goMypage = () => router.push({ name: "mypage" });
 /* 테마 토글 버튼 (유리 스타일) */
 .theme-btn {
   font-size: 18px;
-  width: 36px; /* 크기 조정 */
-  height: 36px;
+  width: 24px; /* 크기 조정 */
+  height: 24px;
   padding: 0;
   display: flex;
   align-items: center;

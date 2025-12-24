@@ -405,10 +405,10 @@ onBeforeUnmount(() => {
 }
 
 .folder-tab {
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변경됨 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변경됨 */
   border-bottom: none;
   border-radius: 16px 16px 0 0;
 
@@ -424,7 +424,7 @@ onBeforeUnmount(() => {
 .desktop-label {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변경됨 */
   margin: 0;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -441,13 +441,13 @@ onBeforeUnmount(() => {
   padding-bottom: 8px;
 }
 
-/* ✅ [추가] 새로고침 아이콘 버튼 */
+/* ✅ 새로고침 아이콘 버튼 */
 .refresh-icon-btn {
   border: none;
   background: transparent;
   padding: 8px;
   border-radius: 50%;
-  color: #aaa; /* 외부로 나가면서 색상 약간 밝게 */
+  color: var(--text-secondary); /* 변경됨 */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -459,8 +459,8 @@ onBeforeUnmount(() => {
   height: 24px;
 }
 .refresh-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-button-glass); /* 변경됨 */
+  color: var(--text-primary); /* 변경됨 */
   transform: rotate(180deg);
 }
 .refresh-icon-btn:disabled {
@@ -475,12 +475,12 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   padding: 20px;
 
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변경됨 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변경됨 */
   border-radius: 0 24px 24px 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변경됨 */
   z-index: 4;
 }
 
@@ -492,7 +492,7 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 .feed-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-glass); /* 변경됨 */
   border-radius: 3px;
 }
 
@@ -511,7 +511,7 @@ onBeforeUnmount(() => {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--divider); /* 변경됨 */
   padding: 20px 4px;
   cursor: pointer;
   transition: background 0.2s;
@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
   border-bottom: none;
 }
 .article-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-button-glass); /* 변경됨 */
 }
 
 /* 썸네일 */
@@ -534,19 +534,19 @@ onBeforeUnmount(() => {
   height: 84px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변경됨 */
   display: block;
 }
 .thumbnail-placeholder {
   width: 120px;
   height: 84px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glass); /* 변경됨 */
+  background: var(--bg-input); /* 변경됨 */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary); /* 변경됨 */
   font-size: 12px;
 }
 
@@ -558,13 +558,13 @@ onBeforeUnmount(() => {
 }
 .date {
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary); /* 변경됨 */
 }
 
 .article-title {
   font-size: 17px;
   font-weight: 700;
-  color: #f1f1f1;
+  color: var(--text-primary); /* 변경됨 */
   margin: 0 0 8px 0;
   line-height: 1.35;
   display: -webkit-box;
@@ -575,7 +575,7 @@ onBeforeUnmount(() => {
 
 .article-desc {
   font-size: 14px;
-  color: #b0b0b0 !important;
+  color: var(--text-secondary) !important; /* 변경됨 */
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -594,9 +594,9 @@ onBeforeUnmount(() => {
 
 /* 버튼 스타일 (유리 질감) */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ccc;
+  background: var(--bg-button-glass); /* 변경됨 */
+  border: 1px solid var(--border-glass); /* 변경됨 */
+  color: var(--text-secondary); /* 변경됨 */
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -606,9 +606,9 @@ onBeforeUnmount(() => {
 }
 
 .btn-glass:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--border-glass); /* 변경됨 */
+  color: var(--text-primary); /* 변경됨 */
+  border-color: var(--text-primary); /* 변경됨 */
 }
 
 .btn-glass:disabled {
@@ -619,18 +619,18 @@ onBeforeUnmount(() => {
 /* 로딩/에러 */
 .status-msg {
   text-align: center;
-  color: #999;
+  color: var(--text-secondary); /* 변경됨 */
   padding: 40px;
 }
 .status-msg.error {
-  color: #f87171;
+  color: var(--error-color); /* 변경됨 */
 }
 
 /* 모달 */
 .article-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.75); /* 모달 배경은 어둡게 고정 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -641,7 +641,7 @@ onBeforeUnmount(() => {
 .article-modal__panel {
   width: min(1000px, 100%);
   height: 85vh;
-  background: #fff;
+  background: #fff; /* iframe 가독성 위해 흰색 고정 */
   border-radius: 16px;
   display: flex;
   flex-direction: column;
