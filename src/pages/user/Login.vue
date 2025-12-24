@@ -5,7 +5,10 @@
         <div class="login-content-wrapper">
           <div class="card-head">
             <h1 class="title">Welcome Back!</h1>
-            <p class="subtitle">Newstagram에 오신 것을 환영합니다.</p>
+            <p class="subtitle">
+              {{ theme === "dark" ? "Newstagram" : "Newsreads" }}에 오신 것을
+              환영합니다.
+            </p>
           </div>
 
           <form class="login-form" @submit.prevent="login">
