@@ -63,7 +63,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 
 const emit = defineEmits(["submit"]);
 const text = ref("");
-const isFocused = ref(false); // ✅ 포커스 상태 추적 변수
+const isFocused = ref(false);
 
 const prompts = [
   "오늘 가장 핫한 뉴스가 뭐야?",
@@ -93,14 +93,10 @@ function onSubmit() {
   if (!value) return;
   emit("submit", value);
   text.value = "";
-  // 전송 후 키보드 내리려면 아래 주석 해제
-  // document.activeElement.blur();
 }
 
 function onClear() {
   text.value = "";
-  // 지우고 나서 다시 입력하도록 포커스 유지
-  // document.querySelector('.search-input').focus();
 }
 
 onMounted(() => {
@@ -113,35 +109,38 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 검색바 컨테이너 */
+/* 검색바 컨테이너 (테마 적용) */
 .search-bar {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  /* 변수 적용 */
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+
   border-radius: 20px;
   padding: 0 4px 0 16px;
   transition: all 0.2s ease;
   overflow: hidden;
 }
 
-/* ✅ 포커스 시 효과 제거 (기존 focus-within 스타일 삭제됨) */
-/* 만약 미세하게라도 변하는 게 싫다면 아래처럼 고정 */
 .search-bar:focus-within {
-  border-color: rgba(255, 255, 255, 0.2); /* 기존 색 유지 */
-  box-shadow: none; /* 그림자 제거 */
+  border-color: var(--text-secondary); /* 포커스 시 약간 진하게 */
+  box-shadow: none;
 }
 
-/* 입력창 스타일 */
+/* 입력창 스타일 (테마 적용) */
 .search-input {
   flex: 1;
   background: transparent;
   border: none;
-  outline: none !important; /* 기본 아웃라인 제거 */
-  color: #ffffff;
+  outline: none !important;
+
+  color: var(--text-primary); /* 변수 적용 */
+
   font-size: 14px;
   min-width: 0;
   z-index: 2;
@@ -164,7 +163,7 @@ onUnmounted(() => {
 }
 
 .placeholder-text {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-placeholder); /* 변수 적용 */
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
@@ -177,18 +176,16 @@ onUnmounted(() => {
 .slide-down-leave-active {
   transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
-
 .slide-down-enter-from {
   opacity: 0;
   transform: translateY(-20px);
 }
-
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(20px);
 }
 
-/* 버튼 스타일 */
+/* 버튼 공통 스타일 */
 .btn-icon {
   background: transparent;
   border: none;
@@ -198,7 +195,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.7);
+
+  color: var(--text-secondary); /* 변수 적용 */
+
   transition: all 0.2s;
   z-index: 3;
 }
@@ -208,24 +207,23 @@ onUnmounted(() => {
   height: 20px;
 }
 
-.btn-clear {
-  color: rgba(255, 255, 255, 0.4);
-}
+/* 지우기 버튼 */
 .btn-clear:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  background: var(--bg-button-glass);
 }
 
+/* 전송 버튼 */
 .btn-submit {
-  color: #72d6f5;
+  color: var(--accent-color); /* 포인트 컬러 변수 */
   margin-left: 2px;
 }
 .btn-submit:hover {
-  background: rgba(114, 214, 245, 0.2);
+  background: var(--bg-button-glass);
   transform: scale(1.1);
 }
 .btn-submit:disabled {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-placeholder);
   cursor: default;
   transform: none;
   background: transparent;

@@ -165,16 +165,18 @@ function goFindPwd() {
 </script>
 
 <style scoped>
+/* ✅ 레이아웃 */
 .page-container {
-  height: fit-content;
+  height: calc(100vh - 56px); /* 전체 화면 높이 사용 */
   padding: 16px;
-  margin: auto;
   box-sizing: border-box;
+  overflow: hidden;
+  padding-top: 10px;
 }
 
 .feed-card-layout {
   width: 100%;
-  height: auto;
+  height: 100%;
   max-width: 520px;
   margin: 0 auto;
   display: flex;
@@ -183,7 +185,7 @@ function goFindPwd() {
   overflow: visible;
 }
 
-/* ✅ 헤더 (폴더 탭) */
+/* ✅ 헤더 (폴더 탭) - 변수 적용 */
 .feed-header {
   display: flex;
   align-items: flex-end;
@@ -194,10 +196,10 @@ function goFindPwd() {
 }
 
 .folder-tab {
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-bottom: none;
   border-radius: 16px 16px 0 0;
 
@@ -213,33 +215,46 @@ function goFindPwd() {
 .desktop-label {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0;
   letter-spacing: -0.02em;
 }
 
+/* ✅ 본문 (유리 패널) - 변수 적용 */
 .feed-body.glass-panel-body {
   flex: 1;
   overflow-y: auto;
   padding: 40px;
 
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
   z-index: 4;
 }
 
+/* 스크롤바 */
+.feed-body::-webkit-scrollbar {
+  width: 6px;
+}
+.feed-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.feed-body::-webkit-scrollbar-thumb {
+  background: var(--border-glass);
+  border-radius: 3px;
+}
+
+/* ✅ 콘텐츠 */
 .login-content-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: center; /* 세로 중앙 정렬 */
+  justify-content: center;
 }
 
-/* 타이틀 섹션 */
 .card-head {
   text-align: center;
   margin-bottom: 32px;
@@ -248,17 +263,17 @@ function goFindPwd() {
 .title {
   font-size: 28px;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 15px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   margin: 0;
 }
 
-/* 폼 스타일 */
+/* 폼 */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -272,7 +287,7 @@ function goFindPwd() {
 }
 
 .input-label {
-  color: #e5e7eb;
+  color: var(--text-primary); /* 변수 사용 */
   font-size: 14px;
   font-weight: 600;
   margin-left: 4px;
@@ -284,12 +299,12 @@ function goFindPwd() {
   align-items: center;
 }
 
-/* 다크 모드 입력 필드 */
+/* 입력 필드 */
 .input-dark {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary); /* 변수 사용 */
   padding: 14px 16px;
   border-radius: 12px;
   outline: none;
@@ -298,28 +313,27 @@ function goFindPwd() {
 }
 
 .input-dark:focus {
-  border-color: #72d6f5;
-  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--accent-color); /* 변수 사용 */
+  background: var(--bg-input); /* 라이트 모드 등에서 포커스 시 배경 유지 */
   box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
 }
 
-/* 비밀번호 토글 버튼 */
 .toggle-pwd-btn {
   position: absolute;
   right: 12px;
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
 }
 .toggle-pwd-btn:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
-/* 아이디/비번 찾기 링크 */
+/* 유틸리티 링크 */
 .form-helper {
   display: flex;
   justify-content: flex-end;
@@ -331,51 +345,51 @@ function goFindPwd() {
 .helper-text {
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   font-size: 13px;
   cursor: pointer;
   padding: 0;
 }
 .helper-text:hover {
-  color: #fff;
+  color: var(--text-primary);
   text-decoration: underline;
 }
 
 .divider-dot {
-  color: #4b5563;
-  font-size: 12px;
+  color: var(--text-secondary);
 }
 
+/* 버튼 */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary);
   padding: 0 20px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 700;
   transition: all 0.2s;
-  height: 52px; /* 버튼 높이 키움 */
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .btn-glass:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--border-glass);
 }
 
 .btn-glass.primary {
+  /* 포인트 색상은 고정하거나 변수화 */
   background: rgba(114, 214, 245, 0.15);
   border-color: rgba(114, 214, 245, 0.4);
-  color: #72d6f5;
+  color: var(--accent-color);
 }
 
 .btn-glass.primary:hover {
   background: rgba(114, 214, 245, 0.3);
-  color: #fff;
+  color: #fff; /* 호버 시에는 흰색 고정 (가독성) */
   box-shadow: 0 0 15px rgba(114, 214, 245, 0.2);
 }
 
@@ -383,6 +397,7 @@ function goFindPwd() {
   width: 100%;
 }
 
+/* 구분선 */
 .divider {
   display: flex;
   align-items: center;
@@ -391,44 +406,43 @@ function goFindPwd() {
 .divider-line {
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--divider); /* 변수 사용 */
 }
 
 .divider-text {
   padding: 0 12px;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
 /* 소셜 버튼 */
 .google-btn {
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff; /* 구글 버튼은 흰색 배경 고정 */
   color: #1f2937;
-  border-color: transparent;
+  border: 1px solid #e5e7eb;
   text-decoration: none;
   gap: 10px;
 }
 .google-btn:hover {
-  background: #ffffff;
-  transform: translateY(-1px);
+  background: #f9fafb;
 }
 .social-text {
   font-size: 15px;
   font-weight: 600;
 }
 
-/* 하단 회원가입 링크 */
+/* 하단 링크 */
 .card-footer {
   margin-top: 10px;
   text-align: center;
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 
 .link-btn {
   background: transparent;
   border: none;
-  color: #72d6f5;
+  color: var(--accent-color); /* 변수 사용 */
   font-weight: 700;
   cursor: pointer;
   margin-left: 4px;
@@ -436,17 +450,18 @@ function goFindPwd() {
 }
 .link-btn:hover {
   text-decoration: underline;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* 모바일 반응형 */
-@media (max-width: 900px) {
+@media (max-width: 640px) {
   .page-container {
     padding: 12px;
   }
 
   .feed-body.glass-panel-body {
     padding: 24px;
+    border-radius: 0 0 16px 16px;
   }
 
   .folder-tab {

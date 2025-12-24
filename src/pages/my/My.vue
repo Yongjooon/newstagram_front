@@ -298,29 +298,28 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* ✅ 1. 전체 페이지 레이아웃 (뷰포트 고정) */
+/* ✅ 1. 전체 페이지 레이아웃 */
 .page-container {
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ✅ 2. 다크 글래스 패널 (카드 배경) */
+/* ✅ 2. 글래스 패널 (테마 적용) */
 .glass-panel {
   width: 100%;
   height: 100%;
   max-width: 100%; /* 화면 꽉 차게 */
   margin: 0 auto;
 
-  /* 투명한 어두운 배경 + 블러 (메인 페이지와 동일) */
-  background-color: rgba(30, 30, 30, 0.65);
+  /* 변수 사용 */
+  background-color: var(--bg-panel);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
+  border: 1px solid var(--border-glass);
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel);
 
   display: flex;
   flex-direction: column;
@@ -331,26 +330,26 @@ onBeforeUnmount(() => {
 .panel-header {
   padding: 12px 20px;
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--divider); /* 변수 사용 */
   flex-shrink: 0;
   display: flex;
   align-items: center;
 }
 
 .desktop-label {
-  display: block; /* 기본적으로 보임 */
+  display: block;
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   letter-spacing: -0.02em;
 }
 
-/* 초기화 같은 텍스트 버튼 스타일 */
+/* 초기화 버튼 */
 .action-btn {
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-glass);
   background: transparent;
-  color: #ccc;
+  color: var(--text-secondary); /* 변수 사용 */
   border-radius: 20px;
   padding: 8px 16px;
   font-weight: 700;
@@ -359,9 +358,9 @@ onBeforeUnmount(() => {
   transition: all 0.2s;
 }
 .action-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--bg-button-glass); /* 변수 사용 */
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 .action-btn:disabled {
   opacity: 0.5;
@@ -374,7 +373,7 @@ onBeforeUnmount(() => {
   background: transparent;
   padding: 8px;
   border-radius: 50%;
-  color: #888;
+  color: var(--text-secondary); /* 변수 사용 */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -386,20 +385,13 @@ onBeforeUnmount(() => {
   height: 24px;
 }
 .refresh-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-button-glass);
+  color: var(--text-primary);
   transform: rotate(180deg);
 }
 .refresh-icon-btn:disabled {
   opacity: 0.4;
   cursor: default;
-}
-
-/* 페이지 표시 텍스트 */
-.page-indicator {
-  font-size: 13px;
-  color: #888;
-  margin-right: 12px;
 }
 
 /* ✅ 4. 본문 영역 (스크롤) */
@@ -409,7 +401,7 @@ onBeforeUnmount(() => {
   padding: 0 20px 20px 20px;
 }
 
-/* 스크롤바 디자인 (다크) */
+/* 스크롤바 */
 .panel-body::-webkit-scrollbar {
   width: 6px;
 }
@@ -417,7 +409,7 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 .panel-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-glass); /* 변수 사용 */
   border-radius: 3px;
 }
 
@@ -425,18 +417,18 @@ onBeforeUnmount(() => {
 .status-msg {
   padding: 24px 0;
   text-align: center;
-  color: #999;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 .status-msg.error {
-  color: #ff6b6b;
+  color: var(--error-color); /* 변수 사용 */
 }
 
-/* ✅ 5. 기사 아이템 스타일 (다크) */
+/* ✅ 5. 기사 아이템 스타일 */
 .article-item {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--divider); /* 변수 사용 */
   padding: 20px 4px;
   cursor: pointer;
   transition: background 0.2s;
@@ -446,7 +438,7 @@ onBeforeUnmount(() => {
   border-bottom: none;
 }
 .article-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-button-glass); /* 변수 사용 */
 }
 
 /* 썸네일 */
@@ -459,19 +451,19 @@ onBeforeUnmount(() => {
   height: 84px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   display: block;
 }
 .thumbnail-placeholder {
   width: 120px;
   height: 84px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-input); /* 변수 사용 */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -483,13 +475,13 @@ onBeforeUnmount(() => {
 }
 .date {
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 
 .article-title {
   font-size: 17px;
   font-weight: 700;
-  color: #f1f1f1;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0 0 8px 0;
   line-height: 1.35;
 
@@ -501,7 +493,7 @@ onBeforeUnmount(() => {
 
 .article-desc {
   font-size: 14px;
-  color: #b0b0b0 !important;
+  color: var(--text-secondary) !important; /* 변수 사용 */
   line-height: 1.5;
   margin: 0;
 
@@ -520,8 +512,8 @@ onBeforeUnmount(() => {
 }
 .load-more-btn {
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ddd;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  color: var(--text-secondary);
   padding: 10px 20px;
   border-radius: 20px;
   font-size: 13px;
@@ -529,15 +521,15 @@ onBeforeUnmount(() => {
   transition: background 0.2s;
 }
 .load-more-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--border-glass);
+  color: var(--text-primary);
 }
 .load-more-btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-/* 모달 스타일 (내부는 흰색 유지) */
+/* 모달 스타일 (기사 본문 가독성을 위해 흰색 고정) */
 .article-modal__overlay {
   position: fixed;
   inset: 0;
@@ -552,7 +544,7 @@ onBeforeUnmount(() => {
 .article-modal__panel {
   width: min(1000px, 100%);
   height: 85vh;
-  background: #fff;
+  background: #fff; /* 외부 기사 iframe은 보통 흰색 배경이 적합 */
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -567,6 +559,7 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid #eee;
   font-weight: 700;
   color: #333;
+  background: #fff;
 }
 .article-modal__header button {
   border: none;

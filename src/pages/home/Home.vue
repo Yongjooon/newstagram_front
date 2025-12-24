@@ -376,54 +376,69 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* ✅ CSS 변수 적용 가이드 
+  --bg-panel: 패널 배경 (유리 효과)
+  --border-glass: 테두리 색상
+  --shadow-panel: 그림자
+  --text-primary: 기본 텍스트 (제목 등)
+  --text-secondary: 보조 텍스트 (날짜, 설명 등)
+  --divider: 구분선
+  --bg-button-glass: 버튼 유리 배경
+  --bg-input: 입력창/플레이스홀더 배경
+  --error-color: 에러 메시지
+*/
+
 .home-container {
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ✅ 피드 카드 */
+/* ✅ 피드 카드 (CSS 변수 적용) */
 .feed-card {
   width: 100%;
   height: 100%;
   max-width: 100%;
   margin: 0 auto;
-  background-color: rgba(30, 30, 30, 0.65);
+
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
+
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: background-color 0.3s, border-color 0.3s; /* 테마 전환 애니메이션 */
 }
 
 /* ✅ 헤더 */
 .feed-header {
   padding: 12px 20px;
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--divider); /* 변수 사용 */
   flex-shrink: 0;
 }
 
-/* ✅ [추가] 웹(PC) 전용 라벨 스타일 */
+/* ✅ PC 라벨 */
 .desktop-label {
-  display: block; /* 기본적으로 보임 */
+  display: block;
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   letter-spacing: -0.02em;
 }
 
-/* ✅ 탭 버튼 스타일 (다크 모드용) */
+/* ✅ 탭 버튼 (다크/라이트 모드 대응) */
 .tab-btn {
-  /* [수정] 데스크탑에서는 숨김 */
-  display: none;
+  display: none; /* PC 숨김 */
   border: 1px solid transparent;
   background: transparent;
-  color: #888;
+  color: var(--text-secondary); /* 변수 사용 */
   border-radius: 20px;
   padding: 8px 16px;
   font-weight: 700;
@@ -433,22 +448,24 @@ onBeforeUnmount(() => {
 }
 
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ddd;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  color: var(--text-primary);
 }
 
 .tab-btn.active {
-  background: #ffffff;
-  color: #000000;
+  /* 활성 상태: 텍스트색상 배경에 패널색상 글씨 (반전 효과) */
+  background: var(--text-primary);
+  color: var(--bg-panel); /* 혹은 정해진 배경색 */
 }
 
-/* ✅ 본문 (스크롤 영역) */
+/* ✅ 본문 */
 .feed-body {
   flex: 1;
   overflow-y: auto;
   padding: 0 20px 20px 20px;
 }
 
+/* 스크롤바 */
 .feed-body::-webkit-scrollbar {
   width: 6px;
 }
@@ -456,25 +473,25 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 .feed-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-glass); /* 변수 사용 (테두리색 활용) */
   border-radius: 3px;
 }
 
 .status-msg {
   padding: 24px 0;
   text-align: center;
-  color: #999;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 .status-msg.error {
-  color: #ff6b6b;
+  color: var(--error-color); /* 변수 사용 */
 }
 
-/* ✅ 기사 아이템 카드 */
+/* ✅ 기사 아이템 */
 .article-item {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--divider); /* 변수 사용 */
   padding: 20px 4px;
   cursor: pointer;
   transition: background 0.2s;
@@ -484,7 +501,7 @@ onBeforeUnmount(() => {
   border-bottom: none;
 }
 .article-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-button-glass); /* 변수 사용 */
 }
 
 /* 썸네일 */
@@ -497,19 +514,19 @@ onBeforeUnmount(() => {
   height: 84px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   display: block;
 }
 .thumbnail-placeholder {
   width: 120px;
   height: 84px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  background: var(--bg-input); /* 변수 사용 (입력창 배경색 활용) */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary); /* 변수 사용 */
   font-size: 12px;
 }
 
@@ -521,12 +538,12 @@ onBeforeUnmount(() => {
 }
 .date {
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 .article-title {
   font-size: 17px;
   font-weight: 700;
-  color: #f1f1f1;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0 0 8px 0;
   line-height: 1.35;
   display: -webkit-box;
@@ -536,7 +553,7 @@ onBeforeUnmount(() => {
 }
 .article-desc {
   font-size: 14px;
-  color: #b0b0b0 !important;
+  color: var(--text-secondary) !important; /* 변수 사용 */
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -554,17 +571,17 @@ onBeforeUnmount(() => {
 }
 .load-more-btn {
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ddd;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  color: var(--text-secondary); /* 변수 사용 */
   padding: 10px 20px;
   border-radius: 20px;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 .load-more-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--border-glass); /* 조금 더 진하게 */
+  color: var(--text-primary);
 }
 .load-more-btn:disabled {
   opacity: 0.5;
@@ -577,7 +594,7 @@ onBeforeUnmount(() => {
   background: transparent;
   padding: 8px;
   border-radius: 50%;
-  color: #888;
+  color: var(--text-secondary); /* 변수 사용 */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -589,8 +606,8 @@ onBeforeUnmount(() => {
   height: 24px;
 }
 .refresh-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-button-glass);
+  color: var(--text-primary);
   transform: rotate(180deg);
 }
 .refresh-icon-btn:disabled {
@@ -599,11 +616,11 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-/* 모달 스타일 */
+/* 모달 스타일 (기본적으로 흰색 유지하되 오버레이만 조정) */
 .article-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.75); /* 오버레이는 항상 어둡게 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -614,7 +631,7 @@ onBeforeUnmount(() => {
 .article-modal__panel {
   width: min(1000px, 100%);
   height: 85vh;
-  background: #fff;
+  background: #fff; /* 기사 가독성을 위해 흰색 고정 (iframe 내부 제어 불가) */
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -630,6 +647,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   font-size: 16px;
   color: #333;
+  background: #fff;
 }
 .article-modal__header button {
   border: none;
@@ -649,6 +667,12 @@ onBeforeUnmount(() => {
 
 /* 모바일 반응형 */
 @media (max-width: 900px) {
+  /* 브레이크포인트 맞춤 */
+  .home-container {
+    padding: 12px;
+    height: calc(100vh - 56px);
+  }
+
   .tab-btn {
     display: block;
   }

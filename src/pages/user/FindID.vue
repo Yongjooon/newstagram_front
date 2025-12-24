@@ -106,7 +106,7 @@
                       <g clip-path="url(#clip0_2_54)">
                         <path
                           d="M11 5.00781V4.2C11 3.0799 11 2.51984 10.782 2.09202C10.5903 1.71569 10.2843 1.40973 9.90798 1.21799C9.48016 1 8.9201 1 7.8 1H4.2C3.0799 1 2.51984 1 2.09202 1.21799C1.71569 1.40973 1.40973 1.71569 1.21799 2.09202C1 2.51984 1 3.0799 1 4.2V7.8C1 8.9201 1 9.48016 1.21799 9.90798C1.40973 10.2843 1.71569 10.5903 2.09202 10.782C2.51984 11 3.0799 11 4.2 11H5M8.2 15H11.8C12.9201 15 13.4802 15 13.908 14.782C14.2843 14.5903 14.5903 14.2843 14.782 13.908C15 13.4802 15 12.9201 15 11.8V8.2C15 7.07989 15 6.51984 14.782 6.09202C14.5903 5.71569 14.2843 5.40973 13.908 5.21799C13.4802 5 12.9201 5 11.8 5H8.2C7.07989 5 6.51984 5 6.09202 5.21799C5.71569 5.40973 5.40973 5.71569 5.21799 6.09202C5 6.51984 5 7.07989 5 8.2V11.8C5 12.9201 5 13.4802 5.21799 13.908C5.40973 14.2843 5.71569 14.5903 6.09202 14.782C6.51984 15 7.07989 15 8.2 15Z"
-                          stroke="white"
+                          stroke="currentColor"
                           stroke-width="2"
                         />
                       </g>
@@ -242,7 +242,7 @@ const goLogin = () => router.push({ name: "user" });
 </script>
 
 <style scoped>
-/* ✅ 레이아웃 (공통) */
+/* ✅ 레이아웃 */
 .page-container {
   height: calc(100vh - 56px);
   padding: 16px;
@@ -262,7 +262,7 @@ const goLogin = () => router.push({ name: "user" });
   overflow: visible;
 }
 
-/* ✅ 헤더 */
+/* ✅ 헤더 (폴더 탭) */
 .feed-header {
   display: flex;
   align-items: flex-end;
@@ -273,10 +273,10 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .folder-tab {
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-bottom: none;
   border-radius: 16px 16px 0 0;
 
@@ -292,7 +292,7 @@ const goLogin = () => router.push({ name: "user" });
 .desktop-label {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -305,18 +305,18 @@ const goLogin = () => router.push({ name: "user" });
   padding-bottom: 8px;
 }
 
-/* ✅ 본문 */
+/* ✅ 본문 (유리 패널) */
 .feed-body.glass-panel-body {
   flex: 1;
   overflow-y: auto;
   padding: 40px;
 
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-radius: 0 24px 24px 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
   z-index: 4;
 }
 
@@ -343,7 +343,7 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .label {
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   font-size: 14px;
   font-weight: 600;
   margin-left: 4px;
@@ -358,9 +358,9 @@ const goLogin = () => router.push({ name: "user" });
 .input-dark {
   flex: 1;
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary); /* 변수 사용 */
   padding: 12px 16px;
   border-radius: 12px;
   outline: none;
@@ -369,21 +369,22 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .input-dark:focus {
-  border-color: #72d6f5;
-  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--accent-color); /* 변수 사용 */
+  background: var(--bg-input);
   box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
 }
 
 .hint-text {
   font-size: 13px;
   margin: 4px 0 0 4px;
+  /* color는 인라인 스타일로 바인딩됨 */
 }
 
 /* 버튼 */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ccc;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-secondary);
   padding: 0 20px;
   border-radius: 12px;
   cursor: pointer;
@@ -398,19 +399,18 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .btn-glass:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--border-glass);
+  color: var(--text-primary);
 }
 
 .btn-glass.primary {
-  background: rgba(114, 214, 245, 0.15);
-  border-color: rgba(114, 214, 245, 0.4);
-  color: #72d6f5;
+  background: rgba(114, 214, 245, 0.15); /* 강조 버튼은 고정색 유지 or 변수화 */
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .btn-glass.primary:hover:not(:disabled) {
-  background: rgba(114, 214, 245, 0.3);
+  background: var(--accent-color);
   color: #fff;
 }
 
@@ -425,11 +425,11 @@ const goLogin = () => router.push({ name: "user" });
   font-size: 13px;
 }
 
-/* ✅ 결과 박스 & 복사 버튼 스타일 */
+/* ✅ 결과 박스 */
 .result-box {
   margin-top: 16px;
   background: rgba(114, 214, 245, 0.1);
-  border: 1px dashed rgba(114, 214, 245, 0.5);
+  border: 1px dashed var(--accent-color);
   padding: 20px;
   border-radius: 16px;
   text-align: center;
@@ -437,11 +437,11 @@ const goLogin = () => router.push({ name: "user" });
 
 .result-label {
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   margin-bottom: 8px;
 }
 
-/* 결과 값과 버튼을 가로로 정렬 */
+/* 결과 값과 버튼 */
 .result-value-row {
   display: flex;
   align-items: center;
@@ -452,7 +452,7 @@ const goLogin = () => router.push({ name: "user" });
 .result-value {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   word-break: break-all;
 }
 
@@ -461,7 +461,7 @@ const goLogin = () => router.push({ name: "user" });
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   padding: 4px;
   display: flex;
   align-items: center;
@@ -470,7 +470,7 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .copy-btn:hover {
-  color: #fff;
+  color: var(--text-primary);
   transform: scale(1.1);
 }
 
@@ -481,7 +481,7 @@ const goLogin = () => router.push({ name: "user" });
 }
 
 .icon-check {
-  color: #4ade80; /* 복사 성공 시 녹색 */
+  color: var(--success-color); /* 변수 사용 */
 }
 
 /* 애니메이션 */

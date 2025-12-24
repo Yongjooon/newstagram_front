@@ -1,6 +1,7 @@
 <template>
   <div class="app-shell">
-    <SnowCanvas />
+    <SnowCanvas v-if="theme === 'dark'" />
+    <SunCanvas v-else />
 
     <Header
       v-if="showLayout"
@@ -53,12 +54,17 @@ import Navi from "@/components/Navi.vue";
 import Footer from "@/components/Footer.vue";
 import { useUserStore } from "@/stores/user";
 import SnowCanvas from "./components/SnowCanvas.vue";
+import SunCanvas from "./components/SunCanvas.vue";
 import { usePromptStore } from "@/stores/promptStore";
+import { useTheme } from "@/composables/useTheme"; // ✅ import 추가
 
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const promptStore = usePromptStore();
+
+// ✅ 테마 상태 가져오기
+const { theme, initTheme } = useTheme();
 
 const isLoggedIn = computed(() => {
   const v =
@@ -120,6 +126,7 @@ function closeNav() {
 }
 
 onMounted(() => {
+  initTheme(); // ✅ 테마 초기화 실행
   syncIsMobile();
   window.addEventListener("resize", syncIsMobile, { passive: true });
 });
@@ -155,18 +162,47 @@ const onGlobalSubmit = async (promptText) => {
 </script>
 
 <style>
-/* ====== Global Reset & Variables ====== */
+/* ====== Global Theme Variables ====== */
 :root {
-  --bg: #f6f7fb;
-  --panel: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  --radius: 14px;
-  --focus: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  /* 🌑 다크 모드 (기본) */
+  --bg-app: radial-gradient(circle at bottom, #0a0a15, #000);
+  --bg-panel: rgba(30, 30, 30, 0.65);
+  --bg-input: rgba(0, 0, 0, 0.3);
+  --bg-button-glass: rgba(255, 255, 255, 0.05);
+  --bg-sidebar-mobile: #0f0f0f;
 
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-placeholder: #6b7280;
+
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --divider: rgba(255, 255, 255, 0.1);
+
+  --accent-color: #72d6f5;
+  --success-color: #4ade80;
+  --error-color: #f87171;
+
+  --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --radius: 14px;
   --header-height: 56px;
+}
+
+/* ☀️ 라이트 모드 (html[data-theme="light"]) */
+html[data-theme="light"] {
+  --bg-app: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --bg-panel: rgba(255, 255, 255, 0.65);
+  --bg-input: rgba(255, 255, 255, 0.6);
+  --bg-button-glass: rgba(255, 255, 255, 0.4);
+  --bg-sidebar-mobile: #ffffff;
+
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-placeholder: #9ca3af;
+
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --divider: rgba(0, 0, 0, 0.1);
+
+  --shadow-panel: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 *,
@@ -184,12 +220,13 @@ body {
 }
 
 body {
-  background: radial-gradient(circle at bottom, #0a0a15, #000);
-  color: var(--text);
+  background: var(--bg-app);
+  color: var(--text-primary);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
     Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     sans-serif;
   line-height: 1.45;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ====== App Shell Structure ====== */
@@ -231,10 +268,8 @@ body {
   height: 100%;
   overflow-y: auto;
   padding: 16px;
-
-  /* 스크롤바 디자인 (Webkit) */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: var(--border-glass) transparent;
 }
 
 /* ====== Content Area ====== */
@@ -246,7 +281,6 @@ body {
   position: relative;
 }
 
-/* 실제 콘텐츠가 들어가는 내부 래퍼 */
 .app-content-inner {
   padding: 16px;
   width: 100%;
@@ -256,7 +290,6 @@ body {
   overflow: hidden;
 }
 
-/* 비로그인 화면 (독립적 스크롤) */
 .app-content--solo {
   flex: 1;
   overflow-y: auto;
@@ -264,7 +297,6 @@ body {
   display: flex;
   justify-content: center;
 }
-/* 비로그인 화면 내부 래퍼 */
 .app-content--solo > * {
   max-width: 520px;
   width: 100%;
@@ -272,38 +304,51 @@ body {
   padding: 0 16px;
 }
 
-/* ====== Components Common Styles ====== */
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
+/* ====== Global Components Style Overrides ====== */
 input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
   padding: 10px 12px;
-  background: #fff;
-  color: var(--text);
+  background: var(--bg-input);
+  color: var(--text-primary);
   outline: none;
+  transition: background 0.2s, border-color 0.2s;
 }
+
+input::placeholder {
+  color: var(--text-placeholder);
+}
+
 button {
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-button-glass);
+  color: var(--text-primary);
   border-radius: 12px;
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 600;
+  transition: background 0.2s;
 }
+
+button:hover {
+  background: var(--border-glass);
+}
+
 .btn-primary {
   background: #111827;
   color: #fff;
   border-color: #111827;
+}
+
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  color: var(--text-primary);
 }
 
 /* ====== Mobile Responsive ====== */
@@ -312,7 +357,6 @@ button {
     grid-template-columns: 1fr;
   }
 
-  /* 사이드바를 Drawer 형태로 변경 */
   .app-nav-wrap {
     position: fixed;
     top: 0;
@@ -321,11 +365,12 @@ button {
     width: 280px;
     overflow-x: hidden;
     z-index: 100;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-sidebar-mobile);
+    border-right: 1px solid var(--border-glass);
 
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding-top: calc(var(--header-height) + 16px); /* 헤더 아래부터 시작 */
+    padding-top: calc(var(--header-height) + 16px);
   }
 
   .app-nav-wrap.is-open {
@@ -337,12 +382,12 @@ button {
     position: fixed;
     inset: 0;
     z-index: 90;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(0.3px);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
   }
 }
 
-/* 스크롤바 커스텀 (Chrome/Safari) */
+/* 스크롤바 커스텀 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -351,10 +396,10 @@ button {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-glass);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(128, 128, 128, 0.5);
 }
 </style>

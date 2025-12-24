@@ -248,24 +248,22 @@ const onDelete = async (historyId) => {
   transition: transform 0.3s ease;
 }
 
+/* 유리 패널 (CSS 변수 적용) */
 .glass-panel {
-  flex: 1; /* 남은 공간 모두 차지 */
-  min-height: 0; /* 내부 스크롤을 위해 필수 */
-
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-
-  /* 패딩을 제거하고 내부 SimpleBar Content로 이동 */
   padding: 0;
 
-  background-color: rgba(30, 30, 30, 0.4);
+  background-color: var(--bg-panel);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass);
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel);
 
-  overflow: hidden; /* 둥근 모서리 밖으로 내용 나가지 않게 */
+  overflow: hidden;
 }
 
 .nav-scroll-area {
@@ -277,10 +275,10 @@ const onDelete = async (historyId) => {
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  padding-right: 12px; /* 스크롤바와 간격 확보 */
+  padding-right: 12px;
 }
 
-/* 스크롤바 커스텀 스타일 */
+/* 스크롤바 커스텀 */
 :deep(.simplebar-track.simplebar-vertical) {
   width: 8px;
   background: transparent;
@@ -289,13 +287,12 @@ const onDelete = async (historyId) => {
 }
 
 :deep(.simplebar-scrollbar::before) {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--border-glass); /* 테두리색 활용 */
   border-radius: 4px;
   transition: opacity 0.2s linear;
   top: 2px;
   bottom: 2px;
 }
-/* 스크롤 중이거나 호버일 때만 보이게 설정 */
 :deep(.simplebar-scrollbar.simplebar-visible::before) {
   opacity: 1;
 }
@@ -304,11 +301,12 @@ const onDelete = async (historyId) => {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5); /* 오버레이는 항상 어둡게 */
   backdrop-filter: blur(3px);
   z-index: 90;
 }
 
+/* 메인 네비게이션 버튼 */
 .sidenav__btn {
   width: 100%;
   text-align: left;
@@ -317,7 +315,7 @@ const onDelete = async (historyId) => {
   border: 1px solid transparent;
   background: transparent;
   font-weight: 700;
-  color: #ccc;
+  color: var(--text-secondary); /* 비활성 시 회색 */
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -326,29 +324,32 @@ const onDelete = async (historyId) => {
   font-size: 15px;
 }
 .sidenav__btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--bg-button-glass);
+  color: var(--text-primary);
 }
 .sidenav__btn.is-active {
-  background: #ffffff;
-  color: #000;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  background: var(--text-primary); /* 활성 시 반전 효과 */
+  color: var(--bg-panel); /* 배경색 텍스트 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .btn-icon {
   font-size: 16px;
 }
+
 .navgroup {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
+/* 서브 네비게이션 */
 .subnav {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding-left: 12px;
   margin-top: 4px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid var(--divider);
 }
 .subnav__btn {
   width: 100%;
@@ -357,20 +358,22 @@ const onDelete = async (historyId) => {
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .subnav__btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  background: var(--bg-button-glass);
 }
 .subnav__btn.is-sub-active {
-  color: #72d6f5;
+  color: var(--accent-color);
   font-weight: 700;
-  background: rgba(114, 214, 245, 0.1);
+  background: var(--bg-button-glass);
 }
+
+/* 히스토리 리스트 */
 .history-list {
   gap: 0;
 }
@@ -381,7 +384,7 @@ const onDelete = async (historyId) => {
   transition: background 0.2s;
 }
 .history-item:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-button-glass);
 }
 .history-btn {
   flex: 1;
@@ -389,7 +392,7 @@ const onDelete = async (historyId) => {
   background: transparent;
   border: none;
   padding: 8px 12px;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
   display: flex;
@@ -398,7 +401,7 @@ const onDelete = async (historyId) => {
   min-width: 0;
 }
 .history-btn:hover {
-  color: #ddd;
+  color: var(--text-primary);
 }
 .history-icon {
   font-size: 10px;
@@ -409,23 +412,27 @@ const onDelete = async (historyId) => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* 관리 버튼 */
 .mini-action-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass);
   background: transparent;
-  color: #666;
+  color: var(--text-secondary);
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 11px;
   cursor: pointer;
 }
 .mini-action-btn:hover {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
+
+/* 삭제 버튼 */
 .delete-btn {
   background: transparent;
   border: none;
-  color: #ff6b6b;
+  color: var(--error-color);
   padding: 8px;
   cursor: pointer;
   display: flex;
@@ -438,12 +445,14 @@ const onDelete = async (historyId) => {
   background: rgba(255, 107, 107, 0.1);
   border-radius: 6px;
 }
+
 .subnav__empty {
   font-size: 12px;
-  color: #555;
+  color: var(--text-secondary);
   padding: 8px 12px;
 }
 
+/* 모바일 반응형 */
 @media (max-width: 900px) {
   .sidenav {
     position: fixed;
@@ -451,16 +460,19 @@ const onDelete = async (historyId) => {
     left: 0;
     bottom: 0;
     width: 280px;
-    height: 100%;
+    height: 100vh;
     padding: 16px;
     box-sizing: border-box;
     z-index: 100;
-    background: #0f0f0f;
+
+    /* 모바일 배경색 변수 사용 */
+    background: var(--bg-sidebar-mobile);
     transform: translateX(-100%);
   }
 
   .sidenav.open {
     transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
   }
 
   .mobile-overlay {

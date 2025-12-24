@@ -96,9 +96,8 @@ function goLogin() {
   router.push({ name: "user" });
 }
 </script>
-
 <style scoped>
-/* ✅ 레이아웃 (공통) */
+/* ✅ 레이아웃 */
 .page-container {
   height: calc(100vh - 56px);
   padding: 16px;
@@ -129,10 +128,10 @@ function goLogin() {
 }
 
 .folder-tab {
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-bottom: none;
   border-radius: 16px 16px 0 0;
 
@@ -148,7 +147,7 @@ function goLogin() {
 .desktop-label {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -167,12 +166,12 @@ function goLogin() {
   overflow-y: auto;
   padding: 40px;
 
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-radius: 0 24px 24px 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
   z-index: 4;
 }
 
@@ -199,18 +198,18 @@ function goLogin() {
 }
 
 .label {
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   font-size: 14px;
   font-weight: 600;
   margin-left: 4px;
 }
 
-/* 다크 모드 입력 필드 */
+/* 입력 필드 */
 .input-dark {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary); /* 변수 사용 */
   padding: 12px 16px;
   border-radius: 12px;
   outline: none;
@@ -219,8 +218,8 @@ function goLogin() {
 }
 
 .input-dark:focus {
-  border-color: #72d6f5;
-  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--accent-color); /* 변수 사용 */
+  background: var(--bg-input);
   box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
 }
 
@@ -235,17 +234,17 @@ function goLogin() {
 /* 설명 텍스트 */
 .description-text {
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   line-height: 1.5;
   margin: 0;
   text-align: center;
 }
 
-/* 버튼 스타일 */
+/* 버튼 */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ccc;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-secondary);
   padding: 0 20px;
   border-radius: 12px;
   cursor: pointer;
@@ -260,20 +259,20 @@ function goLogin() {
 }
 
 .btn-glass:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--border-glass);
+  color: var(--text-primary);
 }
 
 .btn-glass.primary {
-  background: rgba(114, 214, 245, 0.15);
-  border-color: rgba(114, 214, 245, 0.4);
-  color: #72d6f5;
+  background: rgba(114, 214, 245, 0.15); /* 포인트 버튼 고정색 or 변수화 */
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .btn-glass.primary:hover:not(:disabled) {
-  background: rgba(114, 214, 245, 0.3);
+  background: var(--accent-color);
   color: #fff;
+  box-shadow: 0 0 15px rgba(114, 214, 245, 0.2);
 }
 
 .btn-glass:disabled {

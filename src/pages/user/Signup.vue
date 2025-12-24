@@ -289,7 +289,7 @@ const passwordMsg = ref("");
 const verifyMsg = ref("");
 const signupMsg = ref("");
 
-// 색상 (다크 모드에 맞춰 밝기 조정: 성공 #4ade80, 실패 #f87171, 기본 #9ca3af)
+// 색상 (Hex 코드는 App.vue의 변수 값과 일치: success #4ade80, error #f87171)
 const phoneMsgColor = computed(() =>
   availability.value.phone === false ? "#f87171" : "#4ade80"
 );
@@ -607,6 +607,7 @@ const onlyNumbers = (event) => {
 </script>
 
 <style scoped>
+/* ✅ 레이아웃 (공통) */
 .page-container {
   height: fit-content;
   padding: 16px;
@@ -626,6 +627,7 @@ const onlyNumbers = (event) => {
   overflow: visible;
 }
 
+/* ✅ 헤더 (폴더 탭) */
 .feed-header {
   display: flex;
   align-items: flex-end;
@@ -636,10 +638,10 @@ const onlyNumbers = (event) => {
 }
 
 .folder-tab {
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-bottom: none;
   border-radius: 16px 16px 0 0;
 
@@ -655,7 +657,7 @@ const onlyNumbers = (event) => {
 .desktop-label {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -668,25 +670,28 @@ const onlyNumbers = (event) => {
   padding-bottom: 8px;
 }
 
+/* ✅ 본문 (유리 패널) */
 .feed-body.glass-panel-body {
   flex: 1;
   overflow-y: auto;
   padding: 40px;
 
-  background-color: rgba(30, 30, 30, 0.65);
+  background-color: var(--bg-panel); /* 변수 사용 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
   z-index: 4;
 }
 
+/* ✅ 콘텐츠 스타일 */
 .signup-content-wrapper {
   display: flex;
   flex-direction: column;
 }
 
+/* 타이틀 섹션 */
 .card-head {
   text-align: center;
   margin-bottom: 20px;
@@ -695,13 +700,13 @@ const onlyNumbers = (event) => {
 .title {
   font-size: 20px;
   font-weight: 500;
-  color: #fff;
+  color: var(--text-primary); /* 변수 사용 */
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 15px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   margin: 0;
 }
 
@@ -718,7 +723,7 @@ const onlyNumbers = (event) => {
 }
 
 .label {
-  color: #e5e7eb;
+  color: var(--text-primary); /* 변수 사용 */
   font-size: 14px;
   font-weight: 600;
   margin-left: 4px;
@@ -740,11 +745,12 @@ const onlyNumbers = (event) => {
   flex: 1;
 }
 
+/* 다크 모드 입력 필드 */
 .input-dark {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary); /* 변수 사용 */
   padding: 14px 16px;
   border-radius: 12px;
   outline: none;
@@ -753,16 +759,16 @@ const onlyNumbers = (event) => {
 }
 
 .input-dark:focus {
-  border-color: #72d6f5;
-  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--accent-color); /* 변수 사용 */
+  background: var(--bg-input);
   box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
 }
 
 .input-dark:disabled {
-  background: rgba(255, 255, 255, 0.05);
-  color: #6b7280;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  color: var(--text-secondary); /* 변수 사용 */
   cursor: not-allowed;
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-glass); /* 변수 사용 */
 }
 
 /* 유효성 메시지 */
@@ -781,8 +787,8 @@ const onlyNumbers = (event) => {
 
 /* 인증 박스 (내부) */
 .verification-box {
-  background: rgba(114, 214, 245, 0.05);
-  border: 1px dashed rgba(114, 214, 245, 0.3);
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px dashed var(--accent-color); /* 변수 사용 */
   border-radius: 12px;
   padding: 16px;
   margin: 12px 0;
@@ -793,7 +799,7 @@ const onlyNumbers = (event) => {
 
 .info-text-box {
   margin-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--divider); /* 변수 사용 */
   padding-top: 12px;
   display: flex;
   flex-direction: column;
@@ -802,7 +808,7 @@ const onlyNumbers = (event) => {
 
 .info-text-box p {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   line-height: 1.6;
   margin: 0;
 }
@@ -812,7 +818,7 @@ const onlyNumbers = (event) => {
   border: none;
   padding: 0;
   font-size: 12px;
-  color: #72d6f5;
+  color: var(--accent-color); /* 변수 사용 */
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
@@ -820,14 +826,14 @@ const onlyNumbers = (event) => {
   margin-top: 4px;
 }
 .resend-link:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* 버튼 스타일 (유리 질감) */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ccc;
+  background: var(--bg-button-glass); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-secondary);
   padding: 0 20px;
   border-radius: 12px;
   cursor: pointer;
@@ -842,20 +848,20 @@ const onlyNumbers = (event) => {
 }
 
 .btn-glass:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--border-glass);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .btn-glass.primary {
-  background: rgba(114, 214, 245, 0.15);
-  border-color: rgba(114, 214, 245, 0.4);
-  color: #72d6f5;
+  background: rgba(114, 214, 245, 0.15); /* 포인트 색상 고정 or 변수화 */
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .btn-glass.primary:hover:not(:disabled) {
-  background: rgba(114, 214, 245, 0.3);
-  color: #fff;
+  background: var(--accent-color);
+  color: #fff; /* 활성 상태 텍스트는 흰색 */
   box-shadow: 0 0 15px rgba(114, 214, 245, 0.2);
 }
 
@@ -875,7 +881,7 @@ const onlyNumbers = (event) => {
 }
 
 .margin-top-large {
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
 /* 비밀번호 토글 */
@@ -884,14 +890,14 @@ const onlyNumbers = (event) => {
   right: 12px;
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
 }
 .toggle-pwd-btn:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* 하단 링크 */
@@ -899,13 +905,13 @@ const onlyNumbers = (event) => {
   margin-top: 20px;
   text-align: center;
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--text-secondary); /* 변수 사용 */
 }
 
 .link-btn {
   background: transparent;
   border: none;
-  color: #72d6f5;
+  color: var(--accent-color); /* 변수 사용 */
   font-weight: 700;
   cursor: pointer;
   margin-left: 4px;
@@ -913,7 +919,7 @@ const onlyNumbers = (event) => {
 }
 .link-btn:hover {
   text-decoration: underline;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .msg-box {

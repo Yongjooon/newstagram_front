@@ -1,7 +1,10 @@
 <template>
   <footer class="footer">
     <div class="footer__inner">
-      <span class="copyright">© {{ new Date().getFullYear() }} Newstagram</span>
+      <span class="copyright"
+        >© {{ new Date().getFullYear() }}
+        {{ theme === "dark" ? "Newstagram" : "Newsreads" }}</span
+      >
 
       <a
         href="https://github.com/newstagram"
@@ -44,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary); /* 변수 사용 */
   font-size: 13px;
   font-weight: 500;
 }
@@ -53,15 +56,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff; /* 아이콘 흰색 */
+  color: var(--text-secondary); /* 변수 사용 */
   opacity: 0.6;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: opacity 0.2s, transform 0.2s, color 0.2s;
   cursor: pointer;
   text-decoration: none;
 }
 
 .github-btn:hover {
-  opacity: 1; /* 호버 시 밝게 */
+  opacity: 1;
   transform: translateY(-1px);
+  color: var(--text-primary); /* 호버 시 진하게 */
 }
 </style>

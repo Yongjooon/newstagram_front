@@ -1,0 +1,48 @@
+/* 기본 (다크 모드) */
+:root {
+  /* 배경 */
+  --bg-app: radial-gradient(circle at bottom, #0a0a15, #000);
+  --bg-panel: rgba(30, 30, 30, 0.65); /* 어두운 반투명 */
+  --bg-input: rgba(0, 0, 0, 0.3);
+  --bg-button-glass: rgba(255, 255, 255, 0.05);
+
+  /* 텍스트 */
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af; /* 회색 텍스트 */
+  --text-placeholder: #6b7280;
+
+  /* 테두리 & 라인 */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --divider: rgba(255, 255, 255, 0.1);
+
+  /* 포인트 컬러 (유지) */
+  --accent-color: #72d6f5;
+  --success-color: #4ade80;
+  --error-color: #f87171;
+
+  /* 그림자 */
+  --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ☀️ 라이트 모드 (html[data-theme="light"]) */
+html[data-theme="light"] {
+  /* 배경: 화사한 그라데이션 */
+  --bg-app: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+  /* 패널: 하얀색 반투명 (Frosty Glass) */
+  --bg-panel: rgba(255, 255, 255, 0.65);
+  --bg-input: rgba(255, 255, 255, 0.9); /* 입력창은 더 밝게 */
+  --bg-button-glass: rgba(255, 255, 255, 0.4);
+
+  /* 텍스트: 어두운 색 */
+  --text-primary: #1f2937; /* 진한 회색/검정 */
+  --text-secondary: #4b5563;
+  --text-placeholder: #9ca3af;
+
+  /* 테두리: 검은색 기반 투명도 */
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --divider: rgba(0, 0, 0, 0.1);
+
+  /* 그림자: 조금 더 부드럽게 */
+  --shadow-panel: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
