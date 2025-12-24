@@ -130,6 +130,9 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../../stores/user";
 
+import { useTheme } from "@/composables/useTheme";
+const { theme, toggleTheme } = useTheme();
+
 const baseUrl = import.meta.env.VITE_API_URL;
 
 const router = useRouter();
