@@ -4,7 +4,10 @@
       <div class="feed-body glass-panel-body">
         <div class="signup-content-wrapper">
           <div class="card-head">
-            <p class="title">Newstagram에 오신 것을 환영합니다.</p>
+            <p class="title">
+              {{ theme === "dark" ? "Newstagram" : "Newsreads" }}에 오신 것을
+              환영합니다.
+            </p>
             <div class="card-footer">
               <span>이미 가입한 계정이 있으신가요?</span>
               <button
