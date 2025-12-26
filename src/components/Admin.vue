@@ -1,12 +1,15 @@
-<!-- src/components/Admin.vue -->
 <template>
-  <!-- ✅ ADMIN일 때만 보이도록 -->
-  <aside v-if="isAdmin" class="admin-bar" aria-label="Admin bar">
+  <div v-if="isAdmin" class="admin-bar" aria-label="Admin bar">
+    <div class="admin-header">
+      <span class="admin-label">Administrator</span>
+      <div class="status-dot"></div>
+    </div>
+
     <button class="admin-btn" type="button" @click="openAdminModal">
-      관리자 페이지
+      <span class="btn-icon">⚙️</span>
+      관리자 대시보드
     </button>
 
-    <!-- ✅ 모달은 Admin.vue로 이동 -->
     <teleport to="body">
       <div
         v-if="adminModalOpen"
@@ -15,7 +18,14 @@
         aria-modal="true"
         @click.self="closeAdminModal"
       >
-        <section class="admin-modal">
+        <section class="admin-modal-panel glass-panel">
+          <header class="admin-modal__header">
+            <h3>CloudWatch Monitoring</h3>
+            <button type="button" class="close-btn" @click="closeAdminModal">
+              ✕
+            </button>
+          </header>
+
           <div class="admin-modal__body">
             <div class="admin-modal__frame-wrap">
               <iframe
@@ -30,7 +40,7 @@
         </section>
       </div>
     </teleport>
-  </aside>
+  </div>
 </template>
 
 <script setup>
@@ -39,12 +49,17 @@ import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
 
-const role = computed(() => userStore?.state?.user?.role || "");
+// Pinia State 접근 방식 안전하게 처리
+const role = computed(() => {
+  if (userStore.user && userStore.user.role) return userStore.user.role;
+  // state 구조가 다를 경우 대비 (userStore.state.user...)
+  return userStore.state?.user?.role || "";
+});
+
 const isAdmin = computed(() => role.value === "ADMIN");
 
 const adminModalOpen = ref(false);
-
-const CLOUDWATCH_URL = import.meta.env.VITE_CLOUDWATCH_DASHBOARD_URL;
+const CLOUDWATCH_URL = import.meta.env.VITE_CLOUDWATCH_DASHBOARD_URL || "";
 
 const openAdminModal = () => {
   adminModalOpen.value = true;
@@ -56,68 +71,184 @@ const closeAdminModal = () => {
 </script>
 
 <style scoped>
+/* ✅ 관리자 바 (유리 효과 + 붉은 테두리 강조) */
 .admin-bar {
-  padding: 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 16px;
+
+  /* 테마 변수 적용 */
+  background-color: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* 관리자 전용 붉은 테두리 유지 (error-color 활용 가능하지만 고정값 추천) */
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  border-radius: 24px;
+
+  box-shadow: 0 8px 32px 0 rgba(255, 80, 80, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
 }
 
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.admin-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ff6b6b; /* 관리자 강조색은 고정 */
+}
+
+/* 상태 표시 점 (애니메이션) */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff5252;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff5252;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ✅ 관리자 버튼 */
 .admin-btn {
   width: 100%;
-  padding: 10px 12px;
-  font-weight: 800;
+  padding: 12px;
   border-radius: 12px;
-  background: #111827;
-  border-color: #111827;
-  color: #fff;
+  border: none;
   cursor: pointer;
+
+  /* 그라데이션 버튼 유지 */
+  background: linear-gradient(135deg, #ff9a9e 0%, #ff6b6b 100%);
+
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  transition: all 0.2s ease;
 }
 
-/* ===== 관리자 모달 ===== */
+.admin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+  filter: brightness(1.1);
+}
+
+.admin-btn:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* ✅ 모달 백드롭 */
 .admin-modal__backdrop {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.75); /* 배경은 항상 어둡게 */
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
 }
 
-.admin-modal {
+/* ✅ 모달 패널 (테마 적용) */
+.admin-modal-panel {
   width: min(1100px, 100%);
-  height: min(720px, 100%);
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  height: min(720px, 90vh);
+
+  /* 테마 변수 적용 */
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-glass);
+
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
+/* 모달 헤더 */
+.admin-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+
+  background-color: var(--bg-button-glass);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.admin-modal__header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary); /* 텍스트 색상 변수 */
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.close-btn:hover {
+  color: var(--text-primary);
+}
+
+/* 모달 바디 */
 .admin-modal__body {
-  padding: 12px 16px 16px;
+  padding: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  height: 100%;
   min-height: 0;
+  background: #fff; /* iframe 내부가 보통 흰색이므로 흰색 고정 (다크모드여도) */
 }
 
 .admin-modal__frame-wrap {
   flex: 1;
-  min-height: 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .admin-modal__frame {
   width: 100%;
   height: 100%;
   border: 0;
+  display: block;
 }
 </style>

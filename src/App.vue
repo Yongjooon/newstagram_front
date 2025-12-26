@@ -1,14 +1,14 @@
-<!-- src/App.vue -->
 <template>
   <div class="app-shell">
-    <SnowCanvas />
+    <SnowCanvas v-if="theme === 'dark'" />
+    <SunCanvas v-else />
 
-    <!-- 로그인 상태 + 현재 라우트가 레이아웃 허용일 때만 노출 -->
     <Header
       v-if="showLayout"
       @toggle-nav="toggleNav"
       @submit-prompt="onGlobalSubmit"
       :hide-prompt="!showGlobalPrompt"
+      class="app-header"
     />
 
     <div
@@ -16,17 +16,14 @@
       class="app-main"
       :class="{ 'is-no-sidenav': hideSideNav }"
     >
-      <!-- ✅ mypage에서는 좌측 네비(Admin/Navi) 자체를 숨김 -->
-      <div
+      <aside
         v-if="!hideSideNav"
         class="app-nav-wrap"
         :class="{ 'is-open': isNavOpen }"
       >
-        <Admin />
-        <Navi class="app-nav" />
-      </div>
+        <Navi :is-open="isNavOpen" @close="closeNav" class="app-nav" />
+      </aside>
 
-      <!-- ✅ 모바일 오버레이도 좌측 네비가 있을 때만 -->
       <div
         v-if="!hideSideNav && isMobile && isNavOpen"
         class="nav-backdrop"
@@ -34,18 +31,18 @@
         aria-hidden="true"
       />
 
-      <main class="app-content" role="main">
-        <router-view />
+      <main class="app-content-wrap" role="main">
+        <div class="app-content-inner">
+          <router-view />
+        </div>
       </main>
     </div>
 
-    <!-- 비로그인(로그인/회원가입/아이디·비번찾기 등) -->
-    <main v-else class="app-content app-content--solo" role="main">
+    <main v-else class="app-content--solo" role="main">
       <router-view />
     </main>
 
-    <!-- ✅ Footer는 항상 맨 아래 -->
-    <Footer />
+    <Footer class="app-footer" />
   </div>
 </template>
 
@@ -54,16 +51,20 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Navi from "@/components/Navi.vue";
-import Admin from "@/components/Admin.vue";
-import Footer from "@/components/Footer.vue"; // ✅ 추가
+import Footer from "@/components/Footer.vue";
 import { useUserStore } from "@/stores/user";
 import SnowCanvas from "./components/SnowCanvas.vue";
+import SunCanvas from "./components/SunCanvas.vue";
 import { usePromptStore } from "@/stores/promptStore";
+import { useTheme } from "@/composables/useTheme"; // ✅ import 추가
 
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const promptStore = usePromptStore();
+
+// ✅ 테마 상태 가져오기
+const { theme, initTheme } = useTheme();
 
 const isLoggedIn = computed(() => {
   const v =
@@ -81,7 +82,6 @@ const showLayout = computed(() => {
   return isLoggedIn.value;
 });
 
-/* ✅ mypage에서는 Navi/Admin/WritePrompt 모두 숨김 */
 const hideSideNavOnRoutes = new Set(["mypage"]);
 const hidePromptOnRoutes = new Set(["mypage", "survey"]);
 
@@ -95,7 +95,6 @@ const showGlobalPrompt = computed(() => {
   return !hidePromptOnRoutes.has(routeName.value);
 });
 
-/* (유지) 히스토리 로딩 */
 watch(
   () => showLayout.value,
   async (visible) => {
@@ -105,10 +104,9 @@ watch(
       promptStore.clearHistory();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
-/* ✅ 모바일 네비 토글 */
 const isNavOpen = ref(false);
 const isMobile = ref(false);
 
@@ -128,6 +126,7 @@ function closeNav() {
 }
 
 onMounted(() => {
+  initTheme(); // ✅ 테마 초기화 실행
   syncIsMobile();
   window.addEventListener("resize", syncIsMobile, { passive: true });
 });
@@ -140,7 +139,7 @@ watch(
   () => route.fullPath,
   () => {
     if (isMobile.value) closeNav();
-  },
+  }
 );
 
 watch(
@@ -148,7 +147,7 @@ watch(
   (v) => {
     if (v) isNavOpen.value = false;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const onGlobalSubmit = async (promptText) => {
@@ -163,16 +162,47 @@ const onGlobalSubmit = async (promptText) => {
 </script>
 
 <style>
-/* ====== 아래는 당신이 준 CSS를 "그대로" 유지 ====== */
+/* ====== Global Theme Variables ====== */
 :root {
-  --bg: #f6f7fb;
-  --panel: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  /* 🌑 다크 모드 (기본) */
+  --bg-app: radial-gradient(circle at bottom, #0a0a15, #000);
+  --bg-panel: rgba(30, 30, 30, 0.65);
+  --bg-input: rgba(0, 0, 0, 0.3);
+  --bg-button-glass: rgba(255, 255, 255, 0.05);
+  --bg-sidebar-mobile: #0f0f0f;
+
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-placeholder: #6b7280;
+
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --divider: rgba(255, 255, 255, 0.1);
+
+  --accent-color: #72d6f5;
+  --success-color: #4ade80;
+  --error-color: #f87171;
+
+  --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   --radius: 14px;
-  --focus: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  --header-height: 56px;
+}
+
+/* ☀️ 라이트 모드 (html[data-theme="light"]) */
+html[data-theme="light"] {
+  --bg-app: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --bg-panel: rgba(255, 255, 255, 0.65);
+  --bg-input: rgba(255, 255, 255, 0.6);
+  --bg-button-glass: rgba(255, 255, 255, 0.4);
+  --bg-sidebar-mobile: #ffffff;
+
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-placeholder: #9ca3af;
+
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --divider: rgba(0, 0, 0, 0.1);
+
+  --shadow-panel: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 *,
@@ -184,159 +214,127 @@ const onGlobalSubmit = async (promptText) => {
 html,
 body {
   height: 100%;
-  overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
-  background: radial-gradient(circle at bottom, #0a0a15, #000);
-  color: var(--text);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Helvetica,
-    Arial,
-    "Apple SD Gothic Neo",
-    "Noto Sans KR",
-    "Malgun Gothic",
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     sans-serif;
   line-height: 1.45;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* ====== App Shell Structure ====== */
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.app-footer {
+  flex-shrink: 0;
+  z-index: 50;
 }
 
 .app-main {
   flex: 1;
+  min-height: 0;
+
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns: max-content 1fr;
+  gap: 0;
+
+  position: relative;
+  overflow: hidden;
 }
 
-.app-content {
-  min-width: 0;
+.app-main.is-no-sidenav {
+  grid-template-columns: 1fr;
+}
+
+/* ====== Sidebar Area ====== */
+.app-nav-wrap {
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-glass) transparent;
+}
+
+/* ====== Content Area ====== */
+.app-content-wrap {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.app-content-inner {
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 .app-content--solo {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.app-content--solo > * {
   max-width: 520px;
   width: 100%;
-  margin: 0 auto;
-  padding: 24px 16px 40px;
+  margin: 20px auto;
+  padding: 0 16px;
 }
 
-.container {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.page {
-  width: 100%;
-}
-
-.page-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 14px;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.card--padded {
-  padding: 16px;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.field label {
-  display: block;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
+/* ====== Global Components Style Overrides ====== */
 input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
   padding: 10px 12px;
-  background: #fff;
-  color: var(--text);
+  background: var(--bg-input);
+  color: var(--text-primary);
   outline: none;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  box-shadow: var(--focus);
-  border-color: rgba(59, 130, 246, 0.7);
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 6px;
+input::placeholder {
+  color: var(--text-placeholder);
 }
 
 button {
-  appearance: none;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-button-glass);
+  color: var(--text-primary);
   border-radius: 12px;
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 600;
-  transition:
-    transform 0.04s ease,
-    background 0.12s ease,
-    border-color 0.12s ease;
+  transition: background 0.2s;
 }
 
 button:hover {
-  background: #fafafa;
-  border-color: #d1d5db;
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--border-glass);
 }
 
 .btn-primary {
@@ -345,73 +343,63 @@ button:disabled {
   border-color: #111827;
 }
 
-.btn-primary:hover {
-  background: #0b1220;
-  border-color: #0b1220;
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  color: var(--text-primary);
 }
 
-.btn-ghost {
-  background: transparent;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
-}
-
-/* ✅ 당신이 준 responsive 유지 */
+/* ====== Mobile Responsive ====== */
 @media (max-width: 900px) {
   .app-main {
     grid-template-columns: 1fr;
-    padding: 12px;
   }
-}
 
-/* ====== 여기부터 "추가"만 (기존 규칙 변경 없음) ====== */
-
-/* ✅ mypage처럼 사이드 네비를 숨길 때 1컬럼 레이아웃 */
-.app-main.is-no-sidenav {
-  grid-template-columns: 1fr;
-}
-
-/* ✅ Admin + Navi를 세로로 쌓을 때 간격 */
-.app-nav-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ✅ 모바일에서만 Navi를 drawer로 숨김/표시 */
-@media (max-width: 900px) {
   .app-nav-wrap {
     position: fixed;
-    top: 56px; /* Header 높이 */
+    top: 0;
     left: 0;
-    width: 78vw;
-    max-width: 320px;
-    height: calc(100vh - 56px);
-    z-index: 60;
+    bottom: 0;
+    width: 280px;
+    overflow-x: hidden;
+    z-index: 100;
+    background: var(--bg-sidebar-mobile);
+    border-right: 1px solid var(--border-glass);
 
-    transform: translateX(-110%);
-    transition: transform 0.2s ease;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: calc(var(--header-height) + 16px);
   }
 
   .app-nav-wrap.is-open {
     transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
   }
 
   .nav-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 55;
-    background: rgba(0, 0, 0, 0.35);
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
   }
+}
+
+/* 스크롤바 커스텀 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glass);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
 }
 </style>

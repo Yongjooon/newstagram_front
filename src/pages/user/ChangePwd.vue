@@ -1,79 +1,98 @@
 <template>
-  <div class="page">
-    <div class="card card--padded">
-      <div class="page-head">
-        <h1 class="page-title">비밀번호 재설정</h1>
-        <button class="btn-ghost" type="button" @click="goLogin">
-          로그인으로
-        </button>
-      </div>
-
-      <div v-if="!token" class="muted" style="color: #ef4444">
-        유효한 토큰이 없습니다. 이메일로 받은 링크로 다시 접속해 주세요.
-      </div>
-
-      <form class="form" @submit.prevent="onChange" v-else>
-        <div class="field">
-          <label>새 비밀번호</label>
-          <input
-            v-model="newPassword"
-            type="password"
-            placeholder="8자 이상, 영문/숫자/특수문자 포함"
-            autocomplete="new-password"
-          />
-          <div
-            v-if="newPassword && !isPasswordValid"
-            class="muted"
-            style="color: #ef4444; font-size: 12px"
-          >
-            비밀번호는 8자 이상이며, 영문/숫자/특수문자를 모두 포함해야 합니다.
-          </div>
+  <main class="page-container">
+    <section class="feed-card-layout">
+      <header class="feed-header">
+        <div class="folder-tab">
+          <h2 class="desktop-label">🔒 비밀번호 재설정</h2>
         </div>
 
-        <div class="field">
-          <label>비밀번호 확인</label>
-          <input
-            v-model="newPasswordConfirm"
-            type="password"
-            placeholder="비밀번호를 한 번 더 입력"
-            autocomplete="new-password"
-          />
-          <div
-            v-if="newPasswordConfirm && !isPasswordMatch"
-            class="muted"
-            style="color: #ef4444; font-size: 12px"
-          >
-            비밀번호가 일치하지 않습니다.
-          </div>
-        </div>
-
-        <div
-          v-if="message"
-          class="muted"
-          :style="{ color: messageOk ? '#059669' : '#ef4444' }"
-        >
-          {{ message }}
-        </div>
-
-        <div class="actions">
-          <button
-            class="btn-primary"
-            type="submit"
-            :disabled="changing || !canSubmit"
-          >
-            {{ changing ? "변경 중..." : "비밀번호 변경" }}
+        <div class="header-right-area">
+          <button class="btn-glass small" type="button" @click="goLogin">
+            로그인으로
           </button>
         </div>
+      </header>
 
-        <p
-          class="muted"
-          style="margin: 6px 0 0; font-size: 12px; line-height: 1.5"
-        >
-          비밀번호 변경이 완료되면, 기존 토큰은 즉시 폐기됩니다.
-        </p>
-      </form>
-    </div>
-  </div>
+      <div class="feed-body glass-panel-body">
+        <div v-if="!token" class="status-box error">
+          <p class="status-title">유효하지 않은 접근입니다</p>
+          <p class="status-desc">
+            이메일로 받은 링크를 통해 다시 접속해 주세요.
+          </p>
+        </div>
+
+        <form v-else class="content-wrapper" @submit.prevent="onChange">
+          <div class="info-grid">
+            <div class="input-group">
+              <label class="label">새 비밀번호</label>
+              <input
+                v-model="newPassword"
+                type="password"
+                placeholder="8자 이상, 영문/숫자/특수문자 포함"
+                autocomplete="new-password"
+                class="input-dark"
+              />
+              <p
+                v-if="newPassword"
+                class="hint-text"
+                :style="{ color: isPasswordValid ? '#4ade80' : '#f87171' }"
+              >
+                {{
+                  isPasswordValid
+                    ? "사용 가능한 비밀번호입니다."
+                    : "8자 이상, 영문/숫자/특수문자를 모두 포함해야 합니다."
+                }}
+              </p>
+            </div>
+
+            <div class="input-group">
+              <label class="label">비밀번호 확인</label>
+              <input
+                v-model="newPasswordConfirm"
+                type="password"
+                placeholder="비밀번호를 한 번 더 입력"
+                autocomplete="new-password"
+                class="input-dark"
+              />
+              <p
+                v-if="newPasswordConfirm"
+                class="hint-text"
+                :style="{ color: isPasswordMatch ? '#4ade80' : '#f87171' }"
+              >
+                {{
+                  isPasswordMatch
+                    ? "비밀번호가 일치합니다."
+                    : "비밀번호가 일치하지 않습니다."
+                }}
+              </p>
+            </div>
+
+            <div
+              v-if="message"
+              class="msg-box"
+              :style="{ color: messageOk ? '#4ade80' : '#f87171' }"
+            >
+              {{ message }}
+            </div>
+
+            <div class="action-row">
+              <button
+                class="btn-glass primary full-width"
+                type="submit"
+                :disabled="changing || !canSubmit"
+              >
+                {{ changing ? "변경 중..." : "비밀번호 변경" }}
+              </button>
+            </div>
+
+            <p class="description-text">
+              비밀번호 변경이 완료되면, 기존 토큰은 즉시 폐기됩니다.
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
@@ -94,11 +113,13 @@ const message = ref("");
 const passwordRule = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
 const isPasswordValid = computed(() =>
-  passwordRule.test(String(newPassword.value || "")),
+  passwordRule.test(String(newPassword.value || ""))
 );
+
 const isPasswordMatch = computed(
   () =>
-    String(newPassword.value || "") === String(newPasswordConfirm.value || ""),
+    newPassword.value &&
+    String(newPassword.value || "") === String(newPasswordConfirm.value || "")
 );
 
 const canSubmit = computed(() => {
@@ -114,7 +135,8 @@ async function onChange() {
   try {
     await UserApi.resetPassword(token.value, newPassword.value);
     messageOk.value = true;
-    message.value = "비밀번호가 변경되었습니다. 로그인 페이지로 이동합니다.";
+    // message.value = "비밀번호가 변경되었습니다. 로그인 페이지로 이동합니다.";
+    alert("비밀번호가 변경되었습니다. 로그인 페이지로 이동합니다.");
     router.push({ name: "user" });
   } catch (err) {
     const status = err?.response?.status;
@@ -136,4 +158,237 @@ function goLogin() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* ✅ 레이아웃 */
+.page-container {
+  height: calc(100vh - 56px);
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-top: 10px;
+}
+
+.feed-card-layout {
+  width: 100%;
+  height: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  overflow: visible;
+}
+
+/* ✅ 헤더 (폴더 탭) */
+.feed-header {
+  display: flex;
+  align-items: flex-end;
+  height: 50px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.folder-tab {
+  background-color: var(--bg-panel); /* 변수 사용 */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 100%;
+  min-width: 200px;
+  position: relative;
+  top: 1px;
+}
+
+.desktop-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary); /* 변수 사용 */
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.header-right-area {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 16px;
+  padding-bottom: 8px;
+}
+
+/* ✅ 본문 (유리 패널) */
+.feed-body.glass-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+
+  background-color: var(--bg-panel); /* 변수 사용 */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  border-radius: 0 24px 24px 24px;
+  box-shadow: var(--shadow-panel); /* 변수 사용 */
+  z-index: 4;
+}
+
+/* ✅ 폼 스타일 */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: var(--text-secondary); /* 변수 사용 */
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+/* 입력 필드 */
+.input-dark {
+  width: 100%;
+  background: var(--bg-input); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-primary); /* 변수 사용 */
+  padding: 12px 16px;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.input-dark:focus {
+  border-color: var(--accent-color); /* 변수 사용 */
+  background: var(--bg-input);
+  box-shadow: 0 0 0 2px rgba(114, 214, 245, 0.1);
+}
+
+/* 메시지 텍스트 */
+.hint-text {
+  font-size: 13px;
+  margin: 4px 0 0 4px;
+  /* color는 인라인 스타일 바인딩 사용 */
+}
+
+.msg-box {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: -8px;
+}
+
+.description-text {
+  font-size: 13px;
+  color: var(--text-secondary); /* 변수 사용 */
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+/* 에러 상태 박스 */
+.status-box {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px dashed var(--error-color); /* 변수 사용 */
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  margin-top: 20px;
+}
+.status-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--error-color); /* 변수 사용 */
+  margin-bottom: 8px;
+}
+.status-desc {
+  font-size: 14px;
+  color: var(--text-secondary); /* 변수 사용 */
+}
+
+/* 버튼 */
+.btn-glass {
+  background: var(--bg-button-glass); /* 변수 사용 */
+  border: 1px solid var(--border-glass); /* 변수 사용 */
+  color: var(--text-secondary);
+  padding: 0 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-glass:hover:not(:disabled) {
+  background: var(--border-glass);
+  color: var(--text-primary);
+}
+
+.btn-glass.primary {
+  background: rgba(114, 214, 245, 0.15);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.btn-glass.primary:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.btn-glass:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-glass.small {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 12px;
+  }
+
+  .feed-body.glass-panel-body {
+    padding: 24px 16px;
+  }
+
+  .folder-tab {
+    min-width: 0;
+    border-radius: 16px 16px 0 0;
+  }
+}
+</style>
